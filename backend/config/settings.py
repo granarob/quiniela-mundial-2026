@@ -16,7 +16,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ===========================================================
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key-change-in-production')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+# Acepta DJANGO_ALLOWED_HOSTS o ALLOWED_HOSTS (Railway lo pone como ALLOWED_HOSTS)
+_allowed_hosts_raw = os.environ.get('DJANGO_ALLOWED_HOSTS') or os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts_raw.split(',')]
+
+# CSRF — necesario para Railway/Vercel
+_csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]
 
 # ===========================================================
 # APPLICATIONS
