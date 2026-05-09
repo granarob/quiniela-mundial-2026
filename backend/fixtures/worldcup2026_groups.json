@@ -1,0 +1,14 @@
+[
+  {"letra": "A", "equipos": ["MEX", "RSA", "CAN", "ARG"]},
+  {"letra": "B", "equipos": ["FRA", "GER", "BRA", "JPN"]},
+  {"letra": "C", "equipos": ["ESP", "USA", "POR", "MAR"]},
+  {"letra": "D", "equipos": ["ENG", "NED", "URU", "COL"]},
+  {"letra": "E", "equipos": ["ECU", "CHI", "BEL", "ITA"]},
+  {"letra": "F", "equipos": ["SEN", "CRO", "CRC", "SUI"]},
+  {"letra": "G", "equipos": ["AUS", "KOR", "GHA", "NGA"]},
+  {"letra": "H", "equipos": ["PER", "VEN", "DEN", "POL"]},
+  {"letra": "I", "equipos": ["IRN", "KSA", "CMR", "TUN"]},
+  {"letra": "J", "equipos": ["SRB", "AUT", "TUR", "SCO"]},
+  {"letra": "K", "equipos": ["UKR", "ALG", "EGY", "CIV"]},
+  {"letra": "L", "equipos": ["PAN", "HON", "NZL", "BOL"]}
+]
