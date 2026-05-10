@@ -486,5 +486,21 @@
     "confederacion": "AFC",
     "ranking_fifa": 70,
     "bandera_url": "https://flagcdn.com/w80/jo.png"
+  },
+  {
+    "nombre": "RD Congo",
+    "nombre_corto": "COD",
+    "codigo_iso": "CD",
+    "confederacion": "CAF",
+    "ranking_fifa": 63,
+    "bandera_url": "https://flagcdn.com/w80/cd.png"
+  },
+  {
+    "nombre": "Uzbekistán",
+    "nombre_corto": "UZB",
+    "codigo_iso": "UZ",
+    "confederacion": "AFC",
+    "ranking_fifa": 66,
+    "bandera_url": "https://flagcdn.com/w80/uz.png"
   }
 ]

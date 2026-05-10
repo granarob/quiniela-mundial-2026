@@ -9,6 +9,6 @@
   {"letra": "H", "equipos": ["ESP", "URU", "KSA", "CPV"]},
   {"letra": "I", "equipos": ["FRA", "SEN", "NOR", "IRQ"]},
   {"letra": "J", "equipos": ["ARG", "ALG", "AUT", "JOR"]},
-  {"letra": "K", "equipos": ["POR", "COL", "PAK", "VEN"]},
-  {"letra": "L", "equipos": ["ENG", "CRO", "CRC", "HON"]}
+  {"letra": "K", "equipos": ["POR", "COL", "COD", "UZB"]},
+  {"letra": "L", "equipos": ["ENG", "CRO", "GHA", "PAN"]}
 ]
