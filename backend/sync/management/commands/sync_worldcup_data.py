@@ -53,10 +53,13 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('[OK] Fases creadas/actualizadas.'))
             return
 
-        use_fallback = options['fallback'] or not settings.FOOTBALL_API_KEY
+        # Por ahora, forzamos use_fallback=True porque la API de football-data.org 
+        # actualmente devuelve los datos del Mundial 2022 para el código 'WC'.
+        # Cuando el mundial 2026 esté sorteado en la API, podemos revertir esto.
+        use_fallback = options['fallback'] or True # <- FORZADO A TRUE
 
         if use_fallback:
-            self.stdout.write('[INFO] Usando datos estaticos de fallback...')
+            self.stdout.write('[INFO] Usando datos estaticos de fallback (Mundial 2026)...')
             self._sync_from_fallback()
         else:
             self.stdout.write('[INFO] Intentando sincronizar desde API...')
