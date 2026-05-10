@@ -462,5 +462,13 @@
     "confederacion": "UEFA",
     "ranking_fifa": 36,
     "bandera_url": "https://flagcdn.com/w80/cz.png"
+  },
+  {
+    "nombre": "Bosnia y Herzegovina",
+    "nombre_corto": "BIH",
+    "codigo_iso": "BA",
+    "confederacion": "UEFA",
+    "ranking_fifa": 74,
+    "bandera_url": "https://flagcdn.com/w80/ba.png"
   }
 ]
