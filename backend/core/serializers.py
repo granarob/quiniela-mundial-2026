@@ -126,7 +126,7 @@ class PronosticoTorneoSerializer(serializers.ModelSerializer):
         model = PronosticoTorneo
         fields = [
             'id', 'campeon', 'subcampeon', 'tercer_lugar', 'cuarto_lugar',
-            'goleador', 'asistente', 'puntos_especiales',
-            'created_at', 'updated_at'
+            'goleador', 'goleador_nombre', 'asistente', 'asistente_nombre',
+            'puntos_especiales', 'created_at', 'updated_at'
         ]
         read_only_fields = ['puntos_especiales', 'created_at', 'updated_at']

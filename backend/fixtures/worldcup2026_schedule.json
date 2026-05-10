@@ -1,50 +1,650 @@
 [
-  {"local": "MEX", "visitante": "RSA", "grupo": "A", "jornada": 1, "fecha_hora": "2026-06-11T22:00:00", "sede": "Estadio Azteca", "ciudad": "Ciudad de México"},
-  {"local": "CAN", "visitante": "ARG", "grupo": "A", "jornada": 1, "fecha_hora": "2026-06-12T18:00:00", "sede": "SoFi Stadium", "ciudad": "Los Ángeles"},
-  {"local": "MEX", "visitante": "CAN", "grupo": "A", "jornada": 2, "fecha_hora": "2026-06-16T19:00:00", "sede": "Estadio Azteca", "ciudad": "Ciudad de México"},
-  {"local": "ARG", "visitante": "RSA", "grupo": "A", "jornada": 2, "fecha_hora": "2026-06-16T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "ARG", "visitante": "MEX", "grupo": "A", "jornada": 3, "fecha_hora": "2026-06-20T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "RSA", "visitante": "CAN", "grupo": "A", "jornada": 3, "fecha_hora": "2026-06-20T22:00:00", "sede": "Estadio Azteca", "ciudad": "Ciudad de México"},
-  {"local": "FRA", "visitante": "GER", "grupo": "B", "jornada": 1, "fecha_hora": "2026-06-12T22:00:00", "sede": "Rose Bowl", "ciudad": "Los Ángeles"},
-  {"local": "BRA", "visitante": "JPN", "grupo": "B", "jornada": 1, "fecha_hora": "2026-06-13T18:00:00", "sede": "AT&T Stadium", "ciudad": "Dallas"},
-  {"local": "FRA", "visitante": "BRA", "grupo": "B", "jornada": 2, "fecha_hora": "2026-06-17T22:00:00", "sede": "Rose Bowl", "ciudad": "Los Ángeles"},
-  {"local": "GER", "visitante": "JPN", "grupo": "B", "jornada": 2, "fecha_hora": "2026-06-17T19:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "GER", "visitante": "BRA", "grupo": "B", "jornada": 3, "fecha_hora": "2026-06-21T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "JPN", "visitante": "FRA", "grupo": "B", "jornada": 3, "fecha_hora": "2026-06-21T22:00:00", "sede": "Rose Bowl", "ciudad": "Los Ángeles"},
-  {"local": "ESP", "visitante": "USA", "grupo": "C", "jornada": 1, "fecha_hora": "2026-06-13T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "POR", "visitante": "MAR", "grupo": "C", "jornada": 1, "fecha_hora": "2026-06-14T18:00:00", "sede": "SoFi Stadium", "ciudad": "Los Ángeles"},
-  {"local": "ESP", "visitante": "POR", "grupo": "C", "jornada": 2, "fecha_hora": "2026-06-18T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "USA", "visitante": "MAR", "grupo": "C", "jornada": 2, "fecha_hora": "2026-06-18T19:00:00", "sede": "AT&T Stadium", "ciudad": "Dallas"},
-  {"local": "USA", "visitante": "POR", "grupo": "C", "jornada": 3, "fecha_hora": "2026-06-22T22:00:00", "sede": "SoFi Stadium", "ciudad": "Los Ángeles"},
-  {"local": "MAR", "visitante": "ESP", "grupo": "C", "jornada": 3, "fecha_hora": "2026-06-22T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "ENG", "visitante": "NED", "grupo": "D", "jornada": 1, "fecha_hora": "2026-06-14T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "URU", "visitante": "COL", "grupo": "D", "jornada": 1, "fecha_hora": "2026-06-15T18:00:00", "sede": "AT&T Stadium", "ciudad": "Dallas"},
-  {"local": "ENG", "visitante": "URU", "grupo": "D", "jornada": 2, "fecha_hora": "2026-06-19T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "NED", "visitante": "COL", "grupo": "D", "jornada": 2, "fecha_hora": "2026-06-19T19:00:00", "sede": "Rose Bowl", "ciudad": "Los Ángeles"},
-  {"local": "NED", "visitante": "URU", "grupo": "D", "jornada": 3, "fecha_hora": "2026-06-23T22:00:00", "sede": "Rose Bowl", "ciudad": "Los Ángeles"},
-  {"local": "COL", "visitante": "ENG", "grupo": "D", "jornada": 3, "fecha_hora": "2026-06-23T22:00:00", "sede": "AT&T Stadium", "ciudad": "Dallas"},
-  {"local": "ECU", "visitante": "CHI", "grupo": "E", "jornada": 1, "fecha_hora": "2026-06-15T22:00:00", "sede": "Estadio Akron", "ciudad": "Guadalajara"},
-  {"local": "BEL", "visitante": "ITA", "grupo": "E", "jornada": 1, "fecha_hora": "2026-06-16T18:00:00", "sede": "BC Place", "ciudad": "Vancouver"},
-  {"local": "ECU", "visitante": "BEL", "grupo": "E", "jornada": 2, "fecha_hora": "2026-06-20T19:00:00", "sede": "Estadio Akron", "ciudad": "Guadalajara"},
-  {"local": "CHI", "visitante": "ITA", "grupo": "E", "jornada": 2, "fecha_hora": "2026-06-20T22:00:00", "sede": "BC Place", "ciudad": "Vancouver"},
-  {"local": "CHI", "visitante": "BEL", "grupo": "E", "jornada": 3, "fecha_hora": "2026-06-24T22:00:00", "sede": "BC Place", "ciudad": "Vancouver"},
-  {"local": "ITA", "visitante": "ECU", "grupo": "E", "jornada": 3, "fecha_hora": "2026-06-24T22:00:00", "sede": "Estadio Akron", "ciudad": "Guadalajara"},
-  {"local": "SEN", "visitante": "CRO", "grupo": "F", "jornada": 1, "fecha_hora": "2026-06-16T22:00:00", "sede": "Levi's Stadium", "ciudad": "San Francisco"},
-  {"local": "CRC", "visitante": "SUI", "grupo": "F", "jornada": 1, "fecha_hora": "2026-06-17T18:00:00", "sede": "Estadio Azteca", "ciudad": "Ciudad de México"},
-  {"local": "SEN", "visitante": "CRC", "grupo": "F", "jornada": 2, "fecha_hora": "2026-06-21T19:00:00", "sede": "Levi's Stadium", "ciudad": "San Francisco"},
-  {"local": "CRO", "visitante": "SUI", "grupo": "F", "jornada": 2, "fecha_hora": "2026-06-21T22:00:00", "sede": "Estadio Azteca", "ciudad": "Ciudad de México"},
-  {"local": "CRO", "visitante": "CRC", "grupo": "F", "jornada": 3, "fecha_hora": "2026-06-25T22:00:00", "sede": "Estadio Azteca", "ciudad": "Ciudad de México"},
-  {"local": "SUI", "visitante": "SEN", "grupo": "F", "jornada": 3, "fecha_hora": "2026-06-25T22:00:00", "sede": "Levi's Stadium", "ciudad": "San Francisco"},
-  {"local": "AUS", "visitante": "KOR", "grupo": "G", "jornada": 1, "fecha_hora": "2026-06-17T22:00:00", "sede": "AT&T Stadium", "ciudad": "Dallas"},
-  {"local": "GHA", "visitante": "NGA", "grupo": "G", "jornada": 1, "fecha_hora": "2026-06-18T18:00:00", "sede": "SoFi Stadium", "ciudad": "Los Ángeles"},
-  {"local": "AUS", "visitante": "GHA", "grupo": "G", "jornada": 2, "fecha_hora": "2026-06-22T19:00:00", "sede": "AT&T Stadium", "ciudad": "Dallas"},
-  {"local": "KOR", "visitante": "NGA", "grupo": "G", "jornada": 2, "fecha_hora": "2026-06-22T22:00:00", "sede": "SoFi Stadium", "ciudad": "Los Ángeles"},
-  {"local": "KOR", "visitante": "GHA", "grupo": "G", "jornada": 3, "fecha_hora": "2026-06-26T22:00:00", "sede": "SoFi Stadium", "ciudad": "Los Ángeles"},
-  {"local": "NGA", "visitante": "AUS", "grupo": "G", "jornada": 3, "fecha_hora": "2026-06-26T22:00:00", "sede": "AT&T Stadium", "ciudad": "Dallas"},
-  {"local": "PER", "visitante": "VEN", "grupo": "H", "jornada": 1, "fecha_hora": "2026-06-18T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "DEN", "visitante": "POL", "grupo": "H", "jornada": 1, "fecha_hora": "2026-06-19T18:00:00", "sede": "BC Place", "ciudad": "Vancouver"},
-  {"local": "PER", "visitante": "DEN", "grupo": "H", "jornada": 2, "fecha_hora": "2026-06-23T19:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"},
-  {"local": "VEN", "visitante": "POL", "grupo": "H", "jornada": 2, "fecha_hora": "2026-06-23T22:00:00", "sede": "BC Place", "ciudad": "Vancouver"},
-  {"local": "VEN", "visitante": "DEN", "grupo": "H", "jornada": 3, "fecha_hora": "2026-06-27T22:00:00", "sede": "BC Place", "ciudad": "Vancouver"},
-  {"local": "POL", "visitante": "PER", "grupo": "H", "jornada": 3, "fecha_hora": "2026-06-27T22:00:00", "sede": "MetLife Stadium", "ciudad": "Nueva York"}
+  {
+    "local": "MEX",
+    "visitante": "RSA",
+    "grupo": "A",
+    "jornada": 1,
+    "fecha_hora": "2026-06-11T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "KOR",
+    "visitante": "CZE",
+    "grupo": "A",
+    "jornada": 1,
+    "fecha_hora": "2026-06-11T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "MEX",
+    "visitante": "KOR",
+    "grupo": "A",
+    "jornada": 2,
+    "fecha_hora": "2026-06-15T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CZE",
+    "visitante": "RSA",
+    "grupo": "A",
+    "jornada": 2,
+    "fecha_hora": "2026-06-15T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CZE",
+    "visitante": "MEX",
+    "grupo": "A",
+    "jornada": 3,
+    "fecha_hora": "2026-06-19T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "RSA",
+    "visitante": "KOR",
+    "grupo": "A",
+    "jornada": 3,
+    "fecha_hora": "2026-06-19T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CAN",
+    "visitante": "BIH",
+    "grupo": "B",
+    "jornada": 1,
+    "fecha_hora": "2026-06-12T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "QAT",
+    "visitante": "SUI",
+    "grupo": "B",
+    "jornada": 1,
+    "fecha_hora": "2026-06-12T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CAN",
+    "visitante": "QAT",
+    "grupo": "B",
+    "jornada": 2,
+    "fecha_hora": "2026-06-16T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "SUI",
+    "visitante": "BIH",
+    "grupo": "B",
+    "jornada": 2,
+    "fecha_hora": "2026-06-16T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "SUI",
+    "visitante": "CAN",
+    "grupo": "B",
+    "jornada": 3,
+    "fecha_hora": "2026-06-20T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "BIH",
+    "visitante": "QAT",
+    "grupo": "B",
+    "jornada": 3,
+    "fecha_hora": "2026-06-20T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "BRA",
+    "visitante": "MAR",
+    "grupo": "C",
+    "jornada": 1,
+    "fecha_hora": "2026-06-13T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "HAI",
+    "visitante": "SCO",
+    "grupo": "C",
+    "jornada": 1,
+    "fecha_hora": "2026-06-13T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "BRA",
+    "visitante": "HAI",
+    "grupo": "C",
+    "jornada": 2,
+    "fecha_hora": "2026-06-17T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "SCO",
+    "visitante": "MAR",
+    "grupo": "C",
+    "jornada": 2,
+    "fecha_hora": "2026-06-17T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "SCO",
+    "visitante": "BRA",
+    "grupo": "C",
+    "jornada": 3,
+    "fecha_hora": "2026-06-21T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "MAR",
+    "visitante": "HAI",
+    "grupo": "C",
+    "jornada": 3,
+    "fecha_hora": "2026-06-21T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "USA",
+    "visitante": "PAR",
+    "grupo": "D",
+    "jornada": 1,
+    "fecha_hora": "2026-06-14T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "AUS",
+    "visitante": "TUR",
+    "grupo": "D",
+    "jornada": 1,
+    "fecha_hora": "2026-06-14T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "USA",
+    "visitante": "AUS",
+    "grupo": "D",
+    "jornada": 2,
+    "fecha_hora": "2026-06-18T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "TUR",
+    "visitante": "PAR",
+    "grupo": "D",
+    "jornada": 2,
+    "fecha_hora": "2026-06-18T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "TUR",
+    "visitante": "USA",
+    "grupo": "D",
+    "jornada": 3,
+    "fecha_hora": "2026-06-22T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "PAR",
+    "visitante": "AUS",
+    "grupo": "D",
+    "jornada": 3,
+    "fecha_hora": "2026-06-22T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "GER",
+    "visitante": "ECU",
+    "grupo": "E",
+    "jornada": 1,
+    "fecha_hora": "2026-06-15T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CIV",
+    "visitante": "CUW",
+    "grupo": "E",
+    "jornada": 1,
+    "fecha_hora": "2026-06-15T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "GER",
+    "visitante": "CIV",
+    "grupo": "E",
+    "jornada": 2,
+    "fecha_hora": "2026-06-19T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CUW",
+    "visitante": "ECU",
+    "grupo": "E",
+    "jornada": 2,
+    "fecha_hora": "2026-06-19T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CUW",
+    "visitante": "GER",
+    "grupo": "E",
+    "jornada": 3,
+    "fecha_hora": "2026-06-23T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "ECU",
+    "visitante": "CIV",
+    "grupo": "E",
+    "jornada": 3,
+    "fecha_hora": "2026-06-23T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "NED",
+    "visitante": "JPN",
+    "grupo": "F",
+    "jornada": 1,
+    "fecha_hora": "2026-06-16T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "TUN",
+    "visitante": "SWE",
+    "grupo": "F",
+    "jornada": 1,
+    "fecha_hora": "2026-06-16T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "NED",
+    "visitante": "TUN",
+    "grupo": "F",
+    "jornada": 2,
+    "fecha_hora": "2026-06-20T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "SWE",
+    "visitante": "JPN",
+    "grupo": "F",
+    "jornada": 2,
+    "fecha_hora": "2026-06-20T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "SWE",
+    "visitante": "NED",
+    "grupo": "F",
+    "jornada": 3,
+    "fecha_hora": "2026-06-24T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "JPN",
+    "visitante": "TUN",
+    "grupo": "F",
+    "jornada": 3,
+    "fecha_hora": "2026-06-24T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "BEL",
+    "visitante": "IRN",
+    "grupo": "G",
+    "jornada": 1,
+    "fecha_hora": "2026-06-17T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "EGY",
+    "visitante": "NZL",
+    "grupo": "G",
+    "jornada": 1,
+    "fecha_hora": "2026-06-17T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "BEL",
+    "visitante": "EGY",
+    "grupo": "G",
+    "jornada": 2,
+    "fecha_hora": "2026-06-21T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "NZL",
+    "visitante": "IRN",
+    "grupo": "G",
+    "jornada": 2,
+    "fecha_hora": "2026-06-21T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "NZL",
+    "visitante": "BEL",
+    "grupo": "G",
+    "jornada": 3,
+    "fecha_hora": "2026-06-25T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "IRN",
+    "visitante": "EGY",
+    "grupo": "G",
+    "jornada": 3,
+    "fecha_hora": "2026-06-25T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "ESP",
+    "visitante": "URU",
+    "grupo": "H",
+    "jornada": 1,
+    "fecha_hora": "2026-06-18T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "KSA",
+    "visitante": "CPV",
+    "grupo": "H",
+    "jornada": 1,
+    "fecha_hora": "2026-06-18T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "ESP",
+    "visitante": "KSA",
+    "grupo": "H",
+    "jornada": 2,
+    "fecha_hora": "2026-06-22T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CPV",
+    "visitante": "URU",
+    "grupo": "H",
+    "jornada": 2,
+    "fecha_hora": "2026-06-22T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CPV",
+    "visitante": "ESP",
+    "grupo": "H",
+    "jornada": 3,
+    "fecha_hora": "2026-06-26T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "URU",
+    "visitante": "KSA",
+    "grupo": "H",
+    "jornada": 3,
+    "fecha_hora": "2026-06-26T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "FRA",
+    "visitante": "SEN",
+    "grupo": "I",
+    "jornada": 1,
+    "fecha_hora": "2026-06-19T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "NOR",
+    "visitante": "IRQ",
+    "grupo": "I",
+    "jornada": 1,
+    "fecha_hora": "2026-06-19T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "FRA",
+    "visitante": "NOR",
+    "grupo": "I",
+    "jornada": 2,
+    "fecha_hora": "2026-06-23T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "IRQ",
+    "visitante": "SEN",
+    "grupo": "I",
+    "jornada": 2,
+    "fecha_hora": "2026-06-23T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "IRQ",
+    "visitante": "FRA",
+    "grupo": "I",
+    "jornada": 3,
+    "fecha_hora": "2026-06-27T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "SEN",
+    "visitante": "NOR",
+    "grupo": "I",
+    "jornada": 3,
+    "fecha_hora": "2026-06-27T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "ARG",
+    "visitante": "ALG",
+    "grupo": "J",
+    "jornada": 1,
+    "fecha_hora": "2026-06-20T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "AUT",
+    "visitante": "JOR",
+    "grupo": "J",
+    "jornada": 1,
+    "fecha_hora": "2026-06-20T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "ARG",
+    "visitante": "AUT",
+    "grupo": "J",
+    "jornada": 2,
+    "fecha_hora": "2026-06-24T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "JOR",
+    "visitante": "ALG",
+    "grupo": "J",
+    "jornada": 2,
+    "fecha_hora": "2026-06-24T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "JOR",
+    "visitante": "ARG",
+    "grupo": "J",
+    "jornada": 3,
+    "fecha_hora": "2026-06-28T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "ALG",
+    "visitante": "AUT",
+    "grupo": "J",
+    "jornada": 3,
+    "fecha_hora": "2026-06-28T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "POR",
+    "visitante": "COL",
+    "grupo": "K",
+    "jornada": 1,
+    "fecha_hora": "2026-06-21T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "COD",
+    "visitante": "UZB",
+    "grupo": "K",
+    "jornada": 1,
+    "fecha_hora": "2026-06-21T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "POR",
+    "visitante": "COD",
+    "grupo": "K",
+    "jornada": 2,
+    "fecha_hora": "2026-06-25T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "UZB",
+    "visitante": "COL",
+    "grupo": "K",
+    "jornada": 2,
+    "fecha_hora": "2026-06-25T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "UZB",
+    "visitante": "POR",
+    "grupo": "K",
+    "jornada": 3,
+    "fecha_hora": "2026-06-29T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "COL",
+    "visitante": "COD",
+    "grupo": "K",
+    "jornada": 3,
+    "fecha_hora": "2026-06-29T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "ENG",
+    "visitante": "CRO",
+    "grupo": "L",
+    "jornada": 1,
+    "fecha_hora": "2026-06-22T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "GHA",
+    "visitante": "PAN",
+    "grupo": "L",
+    "jornada": 1,
+    "fecha_hora": "2026-06-22T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "ENG",
+    "visitante": "GHA",
+    "grupo": "L",
+    "jornada": 2,
+    "fecha_hora": "2026-06-26T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "PAN",
+    "visitante": "CRO",
+    "grupo": "L",
+    "jornada": 2,
+    "fecha_hora": "2026-06-26T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "PAN",
+    "visitante": "ENG",
+    "grupo": "L",
+    "jornada": 3,
+    "fecha_hora": "2026-06-30T12:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  },
+  {
+    "local": "CRO",
+    "visitante": "GHA",
+    "grupo": "L",
+    "jornada": 3,
+    "fecha_hora": "2026-06-30T16:00:00",
+    "sede": "Estadio por definir",
+    "ciudad": "Sede por definir"
+  }
 ]

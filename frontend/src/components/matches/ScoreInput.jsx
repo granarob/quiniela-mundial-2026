@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from 'react';
 /**
  * ScoreInput — Input numérico estilizado (0-99) con efecto glow al focus.
  */
-export default function ScoreInput({ value, onChange, disabled = false, id }) {
+export default function ScoreInput({ value, onChange, disabled = false, id, onComplete }) {
   const inputRef = useRef(null);
 
   function handleChange(e) {
@@ -15,6 +15,10 @@ export default function ScoreInput({ value, onChange, disabled = false, id }) {
     const num = parseInt(raw, 10);
     if (!isNaN(num) && num >= 0 && num <= 99) {
       onChange(num);
+      // Trigger onComplete to allow auto-focusing next input
+      if (onComplete) {
+        onComplete(raw);
+      }
     }
   }
 

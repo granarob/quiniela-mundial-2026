@@ -249,10 +249,12 @@ class PronosticoTorneo(models.Model):
         Jugador, related_name='pronosticos_goleador',
         null=True, blank=True, on_delete=models.SET_NULL
     )
+    goleador_nombre = models.CharField(max_length=200, blank=True, default='')
     asistente = models.ForeignKey(
         Jugador, related_name='pronosticos_asistente',
         null=True, blank=True, on_delete=models.SET_NULL
     )
+    asistente_nombre = models.CharField(max_length=200, blank=True, default='')
     puntos_especiales = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

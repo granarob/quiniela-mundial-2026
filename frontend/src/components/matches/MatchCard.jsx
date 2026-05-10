@@ -28,6 +28,34 @@ const MatchCard = memo(function MatchCard({
   const isSaved = prediction?.saved;
   const isDirty = prediction?.dirty;
 
+  // Ref para el timer de auto-salto
+  const jumpTimer = React.useRef(null);
+
+  const handleLocalComplete = (val) => {
+    if (jumpTimer.current) clearTimeout(jumpTimer.current);
+    
+    // Si ya puso 2 dígitos, saltar de inmediato
+    if (val.length >= 2) {
+      document.getElementById(`pred-visit-${partido.id}`)?.focus();
+    } else if (val.length === 1) {
+      // Si puso 1 dígito, esperar un momento por si quiere poner otro
+      jumpTimer.current = setTimeout(() => {
+        const nextInput = document.getElementById(`pred-visit-${partido.id}`);
+        // Solo saltar si el foco sigue en el input original (opcional, pero más seguro)
+        if (document.activeElement?.id === `pred-local-${partido.id}`) {
+          nextInput?.focus();
+          nextInput?.select(); // Seleccionar para facilitar sobrescribir
+        }
+      }, 700);
+    }
+  };
+
+  React.useEffect(() => {
+    return () => {
+      if (jumpTimer.current) clearTimeout(jumpTimer.current);
+    };
+  }, []);
+
   return (
     <motion.div
       className={`match-card glass-card ${hasResult ? 'match-card-finished' : ''} ${isSaved && !isDirty ? 'match-card-saved' : ''}`}
@@ -100,6 +128,7 @@ const MatchCard = memo(function MatchCard({
                 id={`pred-local-${partido.id}`}
                 value={pred.goles_local_pred}
                 onChange={(val) => onSetPrediction(partido.id, 'goles_local_pred', val)}
+                onComplete={handleLocalComplete}
                 disabled={isLocked}
               />
               <span className="score-separator">-</span>

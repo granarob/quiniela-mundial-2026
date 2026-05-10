@@ -19,7 +19,8 @@ export default function SpecialPredictions() {
   const [jugadores, setJugadores] = useState([]);
   const [form, setForm] = useState({
     campeon: '', subcampeon: '', tercer_lugar: '', cuarto_lugar: '',
-    goleador: '', asistente: '',
+    goleador: '', goleador_nombre: '',
+    asistente: '', asistente_nombre: '',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -31,8 +32,8 @@ export default function SpecialPredictions() {
     async function load() {
       try {
         const [eqRes, jugRes, predRes] = await Promise.all([
-          equiposAPI.list({ ordering: 'nombre' }),
-          jugadoresAPI.list({ ordering: 'nombre' }),
+          equiposAPI.list({ participando: 'true', ordering: 'nombre' }),
+          jugadoresAPI.list({ participando: 'true', ordering: 'nombre' }),
           pronosticosAPI.getTorneo(),
         ]);
         setEquipos(eqRes.data.results || eqRes.data);
@@ -45,7 +46,9 @@ export default function SpecialPredictions() {
             tercer_lugar: pred.tercer_lugar || '',
             cuarto_lugar: pred.cuarto_lugar || '',
             goleador: pred.goleador || '',
+            goleador_nombre: pred.goleador_nombre || '',
             asistente: pred.asistente || '',
+            asistente_nombre: pred.asistente_nombre || '',
           });
         }
       } catch {}
@@ -204,7 +207,7 @@ export default function SpecialPredictions() {
                 </div>
               </motion.div>
 
-              {/* Predicciones de jugadores */}
+              {/* Predicciones de jugadores (Manual) */}
               <motion.div
                 className="glass-card special-pred-section"
                 initial={{ opacity: 0, y: 20 }}
@@ -221,46 +224,22 @@ export default function SpecialPredictions() {
                         <span className="special-pred-points">+{points} pts</span>
                       </div>
                       <div className="special-pred-selector">
-                        {searchPlayer.field === key ? (
-                          <div className="special-pred-dropdown">
-                            <input
-                              type="text"
-                              className="form-input"
-                              placeholder="Buscar jugador..."
-                              value={searchPlayer.query}
-                              onChange={e => setSearchPlayer({ field: key, query: e.target.value })}
-                              autoFocus
-                              onBlur={() => setTimeout(() => setSearchPlayer({ field: null, query: '' }), 200)}
-                            />
-                            <div className="special-pred-options">
-                              {filteredPlayers.slice(0, 10).map(j => (
-                                <button
-                                  key={j.id}
-                                  className="special-pred-option"
-                                  onMouseDown={() => {
-                                    setForm(f => ({ ...f, [key]: j.id }));
-                                    setSearchPlayer({ field: null, query: '' });
-                                  }}
-                                >
-                                  <span>{j.nombre}</span>
-                                  <span className="special-pred-conf">{j.equipo_codigo}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            className="special-pred-selected"
-                            onClick={() => setSearchPlayer({ field: key, query: '' })}
-                          >
-                            {form[key] ? (
-                              <span>{getPlayerName(form[key])}</span>
-                            ) : (
-                              <span className="special-pred-placeholder">Seleccionar...</span>
-                            )}
-                            <span className="special-pred-chevron">▾</span>
-                          </button>
-                        )}
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="Escribe el nombre del jugador..."
+                          value={form[`${key}_nombre`] || ''}
+                          onChange={(e) => setForm({ ...form, [`${key}_nombre`]: e.target.value })}
+                          style={{
+                            width: '100%',
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid var(--glass-border)',
+                            color: 'var(--text-primary)',
+                            padding: 'var(--space-3) var(--space-4)',
+                            borderRadius: 'var(--radius-md)',
+                            fontFamily: 'inherit'
+                          }}
+                        />
                       </div>
                     </div>
                   ))}

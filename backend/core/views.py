@@ -15,6 +15,13 @@ from .serializers import (
     JugadorSerializer, PronosticoPartidoSerializer,
     PronosticoBulkSerializer, PronosticoTorneoSerializer
 )
+from rest_framework.pagination import PageNumberPagination
+
+
+class LargeResultsPagination(PageNumberPagination):
+    page_size = 1000
+    page_size_query_param = 'page_size'
+    max_page_size = 5000
 
 
 class EquipoViewSet(viewsets.ReadOnlyModelViewSet):
@@ -22,9 +29,18 @@ class EquipoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Equipo.objects.all()
     serializer_class = EquipoSerializer
     permission_classes = [AllowAny]
+    pagination_class = LargeResultsPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['nombre', 'nombre_corto', 'confederacion']
     ordering_fields = ['ranking_fifa', 'nombre', 'confederacion']
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        participando = self.request.query_params.get('participando')
+        if participando == 'true':
+            # Solo equipos asignados a un grupo
+            qs = qs.filter(grupoequipo__isnull=False).distinct()
+        return qs
 
 
 class GrupoViewSet(viewsets.ReadOnlyModelViewSet):
@@ -101,6 +117,7 @@ class JugadorViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Jugador.objects.select_related('equipo').all()
     serializer_class = JugadorSerializer
     permission_classes = [AllowAny]
+    pagination_class = LargeResultsPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['nombre', 'equipo__nombre']
     ordering_fields = ['nombre', 'goles', 'asistencias']
@@ -108,8 +125,13 @@ class JugadorViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         equipo_id = self.request.query_params.get('equipo')
+        participando = self.request.query_params.get('participando')
+        
         if equipo_id:
             qs = qs.filter(equipo_id=equipo_id)
+        if participando == 'true':
+            # Solo jugadores de equipos asignados a un grupo
+            qs = qs.filter(equipo__grupoequipo__isnull=False).distinct()
         return qs
 
 
