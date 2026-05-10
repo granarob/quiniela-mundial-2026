@@ -214,6 +214,11 @@ export default function Landing() {
               </motion.div>
             ))}
           </div>
+          <div style={{ textAlign: 'center', marginTop: 'var(--space-8)' }}>
+            <Link to="/reglas" style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', textDecoration: 'none', borderBottom: '1px solid var(--text-muted)', paddingBottom: 2 }}>
+              Ver sistema detallado de puntos y reglas →
+            </Link>
+          </div>
         </div>
       </section>
 

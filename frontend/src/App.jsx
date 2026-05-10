@@ -21,6 +21,7 @@ const KnockoutPhase = lazy(() => import('./pages/KnockoutPhase'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Admin = lazy(() => import('./pages/Admin'));
+const Rules = lazy(() => import('./pages/Rules'));
 
 function LoadingFallback() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
               <Route path="/grupos" element={<Groups />} />
               <Route path="/grupos/:letra" element={<GroupDetail />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/reglas" element={<Rules />} />
               <Route path="/dashboard" element={
                 <ProtectedRoute><Dashboard /></ProtectedRoute>
               } />

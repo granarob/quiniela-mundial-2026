@@ -24,6 +24,7 @@ export default function Navbar() {
     { to: '/grupos', label: '⚽ Grupos' },
     { to: '/eliminatorias', label: '🏟️ Eliminatorias' },
     { to: '/leaderboard', label: '🏆 Ranking' },
+    { to: '/reglas', label: '📜 Reglas' },
     ...(user ? [
       { to: '/predicciones', label: '🌟 Predicciones' },
       { to: '/dashboard', label: '📊 Mi Panel' },
