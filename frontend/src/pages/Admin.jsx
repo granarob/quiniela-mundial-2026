@@ -8,6 +8,7 @@ export default function Admin() {
   const { user } = useAuth();
   const [fases, setFases] = useState([]);
   const [partidos, setPartidos] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
@@ -29,11 +30,13 @@ export default function Admin() {
 
   async function loadData() {
     try {
-      const [fasesRes, partidosRes] = await Promise.all([
+      const [fasesRes, partidosRes, usuariosRes] = await Promise.all([
         adminAPI.fases(),
-        partidosAPI.list() 
+        partidosAPI.list(),
+        adminAPI.usuarios()
       ]);
       setFases(fasesRes.data);
+      setUsuarios(usuariosRes.data.results || usuariosRes.data);
       // Extraemos la lista de partidos de la respuesta
       const p = partidosRes.data.results || partidosRes.data;
       setPartidos(p);
@@ -215,6 +218,46 @@ export default function Admin() {
             <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-4)' }}>
               * Activar permite que los usuarios hagan pronósticos. Bloquear cierra la fase (ya no pueden editar) pero la mantiene visible en rojo. Apagar la oculta/inactiva.
             </p>
+          </div>
+
+          {/* Sección de Usuarios Registrados */}
+          <div className="glass-card" style={{ marginBottom: 'var(--space-10)' }}>
+            <h3 style={{ marginBottom: 'var(--space-6)' }}>👥 Usuarios Registrados</h3>
+            <div className="table-responsive">
+              <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                    <th style={{ padding: 'var(--space-3)' }}>Usuario</th>
+                    <th style={{ padding: 'var(--space-3)' }}>Email</th>
+                    <th style={{ padding: 'var(--space-3)' }}>Puntos</th>
+                    <th style={{ padding: 'var(--space-3)' }}>Rol</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usuarios.map(u => (
+                    <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: 'var(--space-3)', fontWeight: 600 }}>{u.username}</td>
+                      <td style={{ padding: 'var(--space-3)' }}>{u.email}</td>
+                      <td style={{ padding: 'var(--space-3)' }}>{u.puntos_totales}</td>
+                      <td style={{ padding: 'var(--space-3)' }}>
+                        {u.is_admin ? (
+                          <span className="badge badge-done">Admin</span>
+                        ) : (
+                          <span className="badge badge-open">Jugador</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {usuarios.length === 0 && (
+                    <tr>
+                      <td colSpan="4" style={{ padding: 'var(--space-3)', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        No hay usuarios registrados
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Sección de Partidos */}

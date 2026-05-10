@@ -113,3 +113,14 @@ class PasswordResetConfirmView(APIView):
             return Response({'message': 'Contraseña actualizada correctamente.'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'El enlace de recuperación no es válido o ha expirado.'}, status=status.HTTP_400_BAD_REQUEST)
+
+class AdminUserViewSet(generics.ListAPIView):
+    """GET /api/auth/admin/users/ — Lista todos los usuarios registrados."""
+    permission_classes = [IsAuthenticated] # Se asume verificación extra o se cambia a IsAdminUser
+    serializer_class = PerfilSerializer
+    
+    def get_queryset(self):
+        # Protegemos la vista asegurando que solo superuser pueda acceder
+        if not (self.request.user.is_superuser or self.request.user.is_staff):
+            return PerfilUsuario.objects.none()
+        return PerfilUsuario.objects.all().order_by('-created_at')

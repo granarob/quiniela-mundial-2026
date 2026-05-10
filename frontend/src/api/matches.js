@@ -42,6 +42,7 @@ export const leaderboardAPI = {
 
 export const adminAPI = {
   fases: () => api.get('/admin/fases/'),
+  usuarios: () => api.get('/auth/admin/users/'),
   activarFase: (slug) => api.post(`/admin/fases/${slug}/activar/`),
   bloquearFase: (slug) => api.post(`/admin/fases/${slug}/bloquear/`),
   desactivarFase: (slug) => api.post(`/admin/fases/${slug}/desactivar/`),
