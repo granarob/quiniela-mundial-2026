@@ -167,7 +167,7 @@ export default function SpecialPredictions() {
                               onBlur={() => setTimeout(() => setSearchTeam({ field: null, query: '' }), 200)}
                             />
                             <div className="special-pred-options">
-                              {filteredTeams.slice(0, 10).map(eq => (
+                              {filteredTeams.map(eq => (
                                 <button
                                   key={eq.id}
                                   className="special-pred-option"
