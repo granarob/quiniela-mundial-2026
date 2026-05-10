@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../components/layout/Layout';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +7,7 @@ import { pronosticosAPI, leaderboardAPI, fasesAPI } from '../api/matches';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [resumen, setResumen] = useState(null);
   const [miPosicion, setMiPosicion] = useState(null);
   const [fases, setFases] = useState([]);
@@ -20,7 +21,17 @@ export default function Dashboard() {
           leaderboardAPI.miPosicion(),
           fasesAPI.list(),
         ]);
-        setResumen(resRes.data);
+        const resumenData = resRes.data;
+
+        // Force special predictions if all matches are predicted but special aren't
+        if (resumenData.pronósticos_completados === resumenData.total_partidos && resumenData.total_partidos > 0) {
+          if (!resumenData.especiales_completos) {
+            navigate('/predicciones', { state: { forced: true } });
+            return;
+          }
+        }
+
+        setResumen(resumenData);
         setMiPosicion(posRes.data);
         setFases(fasesRes.data.results || fasesRes.data);
       } catch {}
@@ -137,6 +148,15 @@ export default function Dashboard() {
                 <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Actualiza tu avatar y datos</p>
               </div>
             </Link>
+            {user?.is_admin && (
+              <Link to="/admin-panel" style={{ textDecoration: 'none' }}>
+                <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center', borderColor: 'var(--color-accent)' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>🔧</div>
+                  <h5 style={{ marginBottom: 'var(--space-2)', color: 'var(--color-accent)' }}>Panel Admin</h5>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Configurar el torneo</p>
+                </div>
+              </Link>
+            )}
           </div>
         </div>
       </section>

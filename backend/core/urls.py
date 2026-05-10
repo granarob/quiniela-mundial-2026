@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     EquipoViewSet, GrupoViewSet, FaseViewSet, PartidoViewSet,
     JugadorViewSet, PronosticoPartidoViewSet, PronosticoTorneoViewSet,
-    LeaderboardViewSet, AdminFaseViewSet
+    LeaderboardViewSet, AdminFaseViewSet, AdminPartidoViewSet
 )
 
 router = DefaultRouter()
@@ -16,8 +16,8 @@ router.register(r'pronosticos/partidos', PronosticoPartidoViewSet, basename='pro
 router.register(r'pronosticos/torneo', PronosticoTorneoViewSet, basename='pronostico-torneo')
 router.register(r'leaderboard', LeaderboardViewSet, basename='leaderboard')
 router.register(r'admin/fases', AdminFaseViewSet, basename='admin-fase')
+router.register(r'admin/partidos', AdminPartidoViewSet, basename='admin-partido')
 
 urlpatterns = [
     path('', include(router.urls)),
 ]
-

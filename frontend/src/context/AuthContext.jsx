@@ -47,8 +47,21 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  async function requestPasswordReset(email) {
+    await api.post('/auth/password-reset/', { email });
+  }
+
+  async function confirmPasswordReset(uidb64, token, new_password, new_password_confirm) {
+    await api.post('/auth/password-reset-confirm/', {
+      uidb64,
+      token,
+      new_password,
+      new_password_confirm
+    });
+  }
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, requestPasswordReset, confirmPasswordReset }}>
       {children}
     </AuthContext.Provider>
   );

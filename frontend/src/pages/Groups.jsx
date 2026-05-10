@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../components/layout/Layout';
 import GroupCard from '../components/groups/GroupCard';
@@ -6,6 +7,7 @@ import { gruposAPI, pronosticosAPI } from '../api/matches';
 import { useAuth } from '../context/AuthContext';
 
 export default function Groups() {
+  const navigate = useNavigate();
   const [grupos, setGrupos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,15 +30,25 @@ export default function Groups() {
 
   useEffect(() => {
     if (!user) return;
-    pronosticosAPI.listPartidos().then(res => {
+    Promise.all([
+      pronosticosAPI.listPartidos(),
+      pronosticosAPI.resumen()
+    ]).then(([partidosRes, resumenRes]) => {
       const map = {};
-      (res.data.results || res.data).forEach(p => {
-        const letra = p.partido?.grupo_letra;
+      (partidosRes.data.results || partidosRes.data).forEach(p => {
+        const letra = p.grupo_letra;
         if (letra) map[letra] = (map[letra] || 0) + 1;
       });
       setProgress(map);
+
+      const resumenData = resumenRes.data;
+      if (resumenData.pronósticos_completados === resumenData.total_partidos && resumenData.total_partidos > 0) {
+        if (!resumenData.especiales_completos) {
+          navigate('/predicciones', { state: { forced: true }, replace: true });
+        }
+      }
     }).catch(() => {});
-  }, [user]);
+  }, [user, navigate]);
 
   const totalCompletados = Object.values(progress).reduce((a, b) => a + b, 0);
   const totalPartidos = grupos.reduce((acc, g) => acc + (g.total_partidos || 6), 0);

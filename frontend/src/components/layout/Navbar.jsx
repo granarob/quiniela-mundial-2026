@@ -28,6 +28,9 @@ export default function Navbar() {
       { to: '/predicciones', label: '🌟 Predicciones' },
       { to: '/dashboard', label: '📊 Mi Panel' },
     ] : []),
+    ...(user?.is_admin ? [
+      { to: '/admin-panel', label: '🔧 Admin' },
+    ] : []),
   ];
 
   return (

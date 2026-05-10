@@ -27,15 +27,19 @@ class RegisterSerializer(serializers.ModelSerializer):
 class PerfilSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField()
     email = serializers.ReadOnlyField()
+    is_admin = serializers.SerializerMethodField()
 
     class Meta:
         model = PerfilUsuario
         fields = [
             'id', 'username', 'email',
             'avatar_url', 'pais_favorito', 'bio',
-            'puntos_totales', 'created_at'
+            'puntos_totales', 'created_at', 'is_admin'
         ]
         read_only_fields = ['puntos_totales', 'created_at']
+
+    def get_is_admin(self, obj):
+        return obj.usuario.is_superuser or obj.usuario.is_staff
 
 
 class PerfilRankingSerializer(serializers.ModelSerializer):
@@ -45,3 +49,17 @@ class PerfilRankingSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerfilUsuario
         fields = ['id', 'username', 'avatar_url', 'pais_favorito', 'puntos_totales']
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    uidb64 = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True, min_length=8)
+    new_password_confirm = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['new_password_confirm']:
+            raise serializers.ValidationError({'new_password': 'Las contraseñas no coinciden.'})
+        return attrs

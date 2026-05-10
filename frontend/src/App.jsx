@@ -18,6 +18,9 @@ const Profile = lazy(() => import('./pages/Profile'));
 const SpecialPredictions = lazy(() => import('./pages/SpecialPredictions'));
 const Eliminatorias = lazy(() => import('./pages/Eliminatorias'));
 const KnockoutPhase = lazy(() => import('./pages/KnockoutPhase'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const Admin = lazy(() => import('./pages/Admin'));
 
 function LoadingFallback() {
   return (
@@ -37,6 +40,8 @@ export default function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
               <Route path="/grupos" element={<Groups />} />
               <Route path="/grupos/:letra" element={<GroupDetail />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
@@ -52,6 +57,9 @@ export default function App() {
               <Route path="/eliminatorias" element={<Eliminatorias />} />
               <Route path="/eliminatorias/:slug" element={
                 <ProtectedRoute><KnockoutPhase /></ProtectedRoute>
+              } />
+              <Route path="/admin-panel" element={
+                <ProtectedRoute><Admin /></ProtectedRoute>
               } />
               {/* 404 */}
               <Route path="*" element={

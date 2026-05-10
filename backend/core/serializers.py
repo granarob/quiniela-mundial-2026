@@ -95,11 +95,13 @@ class JugadorSerializer(serializers.ModelSerializer):
 
 class PronosticoPartidoSerializer(serializers.ModelSerializer):
     partido_display = serializers.CharField(source='partido.__str__', read_only=True)
+    grupo_letra = serializers.CharField(source='partido.grupo.letra', read_only=True, allow_null=True)
+    fase_slug = serializers.CharField(source='partido.fase.slug', read_only=True)
 
     class Meta:
         model = PronosticoPartido
         fields = [
-            'id', 'partido', 'partido_display',
+            'id', 'partido', 'partido_display', 'grupo_letra', 'fase_slug',
             'goles_local_pred', 'goles_visitante_pred',
             'puntos_ganados', 'created_at', 'updated_at'
         ]

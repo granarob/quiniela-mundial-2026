@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../components/layout/Layout';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +11,10 @@ import { equiposAPI, jugadoresAPI, pronosticosAPI } from '../api/matches';
  */
 export default function SpecialPredictions() {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isForced = location.state?.forced;
+
   const [equipos, setEquipos] = useState([]);
   const [jugadores, setJugadores] = useState([]);
   const [form, setForm] = useState({
@@ -59,7 +64,11 @@ export default function SpecialPredictions() {
       });
       await pronosticosAPI.saveTorneo(payload);
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      if (isForced) {
+        setTimeout(() => navigate('/dashboard'), 2000);
+      } else {
+        setTimeout(() => setSaved(false), 3000);
+      }
     } catch {}
     finally { setSaving(false); }
   }
@@ -111,6 +120,17 @@ export default function SpecialPredictions() {
               Predice los puestos finales y los mejores jugadores. Se bloquean al iniciar el primer partido.
             </p>
           </motion.div>
+
+          {isForced && (
+            <motion.div
+              className="alert alert-warning"
+              style={{ marginBottom: 'var(--space-6)' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              🎉 <strong>¡Felicidades por completar todos los partidos!</strong> Para continuar con tu progreso y asegurar todos tus puntos, debes llenar tus pronósticos especiales del torneo.
+            </motion.div>
+          )}
 
           {loading ? (
             <div className="loading-center"><div className="spinner" /></div>

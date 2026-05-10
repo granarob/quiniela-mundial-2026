@@ -77,6 +77,11 @@ export default function Login() {
             >
               {loading ? '⏳ Ingresando...' : '🚀 Iniciar Sesión'}
             </button>
+            <div style={{ textAlign: 'right', marginTop: 'var(--space-3)' }}>
+              <Link to="/forgot-password" style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
           </form>
 
           <div className="divider" />

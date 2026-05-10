@@ -188,11 +188,25 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
         completados = pronosticos.count()
         total_partidos = Partido.objects.count()
 
+        from .models import PronosticoTorneo
+        torneo = PronosticoTorneo.objects.filter(usuario=usuario).first()
+        especiales_completos = False
+        if torneo:
+            especiales_completos = all([
+                torneo.campeon,
+                torneo.subcampeon,
+                torneo.tercer_lugar,
+                torneo.cuarto_lugar,
+                torneo.goleador,
+                torneo.asistente
+            ])
+
         return Response({
             'puntos_totales': total_puntos,
             'pronósticos_completados': completados,
             'total_partidos': total_partidos,
             'porcentaje': round(completados / total_partidos * 100, 1) if total_partidos else 0,
+            'especiales_completos': especiales_completos,
         })
 
 
@@ -320,4 +334,34 @@ class AdminFaseViewSet(viewsets.ViewSet):
             'fase': fase.slug,
             'activa': fase.activa,
         })
+
+
+class AdminPartidoViewSet(viewsets.ViewSet):
+    """
+    Endpoints de administración para partidos (cargar resultados).
+    Solo accesibles por superusuarios.
+    """
+    permission_classes = [IsAdminUser]
+
+    @action(detail=True, methods=['patch'], url_path='resultado')
+    def cargar_resultado(self, request, pk=None):
+        try:
+            partido = Partido.objects.get(pk=pk)
+        except Partido.DoesNotExist:
+            return Response({'error': 'Partido no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        goles_local = request.data.get('goles_local')
+        goles_visitante = request.data.get('goles_visitante')
+        estado = request.data.get('estado', 'finalizado')
+
+        if goles_local is not None and goles_visitante is not None:
+            partido.goles_local = int(goles_local)
+            partido.goles_visitante = int(goles_visitante)
+            partido.estado = estado
+            partido.resultado_cargado = True
+            partido.save()  # Esto dispara el signal calcular_puntos_al_guardar_resultado
+            return Response({'message': 'Resultado guardado y puntos recalculados.'})
+        
+        return Response({'error': 'Faltan datos de goles.'}, status=status.HTTP_400_BAD_REQUEST)
+
 

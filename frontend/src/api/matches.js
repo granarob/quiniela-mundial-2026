@@ -45,5 +45,7 @@ export const adminAPI = {
   activarFase: (slug) => api.post(`/admin/fases/${slug}/activar/`),
   bloquearFase: (slug) => api.post(`/admin/fases/${slug}/bloquear/`),
   desactivarFase: (slug) => api.post(`/admin/fases/${slug}/desactivar/`),
+  cargarResultado: (id, goles_local, goles_visitante, estado = 'finalizado') => 
+    api.patch(`/admin/partidos/${id}/resultado/`, { goles_local, goles_visitante, estado }),
 };
 
