@@ -4,11 +4,11 @@
   {"letra": "C", "equipos": ["BRA", "MAR", "HAI", "SCO"]},
   {"letra": "D", "equipos": ["USA", "PAR", "AUS", "TUR"]},
   {"letra": "E", "equipos": ["GER", "ECU", "CIV", "CUW"]},
-  {"letra": "F", "equipos": ["NED", "JPN", "TUN", "UKR"]},
+  {"letra": "F", "equipos": ["NED", "JPN", "TUN", "SWE"]},
   {"letra": "G", "equipos": ["BEL", "IRN", "EGY", "NZL"]},
   {"letra": "H", "equipos": ["ESP", "URU", "KSA", "CPV"]},
-  {"letra": "I", "equipos": ["FRA", "SEN", "NOR", "PER"]},
-  {"letra": "J", "equipos": ["ARG", "ALG", "AUT", "CHI"]},
+  {"letra": "I", "equipos": ["FRA", "SEN", "NOR", "IRQ"]},
+  {"letra": "J", "equipos": ["ARG", "ALG", "AUT", "JOR"]},
   {"letra": "K", "equipos": ["POR", "COL", "PAK", "VEN"]},
   {"letra": "L", "equipos": ["ENG", "CRO", "CRC", "HON"]}
 ]

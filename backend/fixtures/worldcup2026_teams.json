@@ -470,5 +470,21 @@
     "confederacion": "UEFA",
     "ranking_fifa": 74,
     "bandera_url": "https://flagcdn.com/w80/ba.png"
+  },
+  {
+    "nombre": "Irak",
+    "nombre_corto": "IRQ",
+    "codigo_iso": "IQ",
+    "confederacion": "AFC",
+    "ranking_fifa": 31,
+    "bandera_url": "https://flagcdn.com/w80/iq.png"
+  },
+  {
+    "nombre": "Jordania",
+    "nombre_corto": "JOR",
+    "codigo_iso": "JO",
+    "confederacion": "AFC",
+    "ranking_fifa": 70,
+    "bandera_url": "https://flagcdn.com/w80/jo.png"
   }
 ]
