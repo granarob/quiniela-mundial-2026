@@ -8,6 +8,7 @@ import CountdownTimer from '../components/ui/CountdownTimer';
 import { useAuth } from '../context/AuthContext';
 import { gruposAPI, fasesAPI } from '../api/matches';
 import usePredictions from '../hooks/usePredictions';
+import GroupStandings from '../components/groups/GroupStandings';
 
 export default function GroupDetail() {
   const { letra } = useParams();
@@ -95,21 +96,12 @@ export default function GroupDetail() {
                 <h1 className="section-title">Grupo {letra}</h1>
               </motion.div>
 
-              {/* Teams card */}
-              <div className="glass-card" style={{ padding: 'var(--space-6)', marginBottom: 'var(--space-6)' }}>
-                <h5 style={{ marginBottom: 'var(--space-4)' }}>🌍 Selecciones</h5>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--space-4)' }}>
-                  {(grupo.equipos_detalle || []).map(({ equipo }) => (
-                    <div key={equipo.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                      {equipo.bandera_url && <img src={equipo.bandera_url} alt={equipo.nombre} style={{ width: 28, height: 18, objectFit: 'cover', borderRadius: 2 }} />}
-                      <div>
-                        <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{equipo.nombre}</div>
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{equipo.confederacion}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {/* Real-time Group Standings */}
+              <GroupStandings 
+                equipos={grupo.equipos_detalle} 
+                partidos={partidos} 
+                predictions={predictions} 
+              />
 
               {/* Countdown Timer */}
               {faseGrupos?.fecha_cierre && (
