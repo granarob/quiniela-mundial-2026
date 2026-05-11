@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Equipo, Grupo, GrupoEquipo, Fase, Partido,
-    Jugador, PronosticoPartido, PronosticoTorneo
+    Jugador, Quiniela, PronosticoPartido, PronosticoTorneo
 )
 
 
@@ -80,6 +80,15 @@ class PartidoDetailSerializer(PartidoListSerializer):
         fields = PartidoListSerializer.Meta.fields + ['fase', 'grupo']
 
 
+class QuinielaSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='usuario.username', read_only=True)
+
+    class Meta:
+        model = Quiniela
+        fields = ['id', 'nombre', 'usuario', 'username', 'puntos_totales', 'created_at', 'updated_at']
+        read_only_fields = ['usuario', 'puntos_totales', 'created_at', 'updated_at']
+
+
 class JugadorSerializer(serializers.ModelSerializer):
     equipo_nombre = serializers.CharField(source='equipo.nombre', read_only=True)
     equipo_codigo = serializers.CharField(source='equipo.nombre_corto', read_only=True)
@@ -101,7 +110,7 @@ class PronosticoPartidoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PronosticoPartido
         fields = [
-            'id', 'partido', 'partido_display', 'grupo_letra', 'fase_slug',
+            'id', 'quiniela', 'partido', 'partido_display', 'grupo_letra', 'fase_slug',
             'goles_local_pred', 'goles_visitante_pred',
             'puntos_ganados', 'created_at', 'updated_at'
         ]
@@ -125,7 +134,7 @@ class PronosticoTorneoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PronosticoTorneo
         fields = [
-            'id', 'campeon', 'subcampeon', 'tercer_lugar', 'cuarto_lugar',
+            'id', 'quiniela', 'campeon', 'subcampeon', 'tercer_lugar', 'cuarto_lugar',
             'goleador', 'goleador_nombre', 'asistente', 'asistente_nombre',
             'puntos_especiales', 'created_at', 'updated_at'
         ]

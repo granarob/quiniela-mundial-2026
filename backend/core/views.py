@@ -7,11 +7,11 @@ from django.db import transaction
 
 from .models import (
     Equipo, Grupo, Fase, Partido, Jugador,
-    PronosticoPartido, PronosticoTorneo
+    Quiniela, PronosticoPartido, PronosticoTorneo
 )
 from .serializers import (
     EquipoSerializer, GrupoSerializer, FaseSerializer,
-    PartidoListSerializer, PartidoDetailSerializer,
+    PartidoListSerializer, PartidoDetailSerializer, QuinielaSerializer,
     JugadorSerializer, PronosticoPartidoSerializer,
     PronosticoBulkSerializer, PronosticoTorneoSerializer
 )
@@ -112,27 +112,16 @@ class PartidoViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 
-class JugadorViewSet(viewsets.ReadOnlyModelViewSet):
-    """GET /api/jugadores/ — Planteles (filtrable por equipo)."""
-    queryset = Jugador.objects.select_related('equipo').all()
-    serializer_class = JugadorSerializer
-    permission_classes = [AllowAny]
-    pagination_class = LargeResultsPagination
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['nombre', 'equipo__nombre']
-    ordering_fields = ['nombre', 'goles', 'asistencias']
+class QuinielaViewSet(viewsets.ModelViewSet):
+    """GET/POST /api/quinielas/ — Gestionar quinielas del usuario."""
+    serializer_class = QuinielaSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        equipo_id = self.request.query_params.get('equipo')
-        participando = self.request.query_params.get('participando')
-        
-        if equipo_id:
-            qs = qs.filter(equipo_id=equipo_id)
-        if participando == 'true':
-            # Solo jugadores de equipos asignados a un grupo
-            qs = qs.filter(equipo__grupoequipo__isnull=False).distinct()
-        return qs
+        return Quiniela.objects.filter(usuario=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)
 
 
 # ─────────────────────────────────────────────────────────
@@ -149,19 +138,29 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        quiniela_id = self.request.query_params.get('quiniela')
+        if not quiniela_id:
+            return PronosticoPartido.objects.none()
         return PronosticoPartido.objects.filter(
-            usuario=self.request.user
+            quiniela_id=quiniela_id,
+            quiniela__usuario=self.request.user
         ).select_related('partido__equipo_local', 'partido__equipo_visitante')
 
-    def perform_create(self, serializer):
-        serializer.save(usuario=self.request.user)
-
     def create(self, request, *args, **kwargs):
-        """Crear o actualizar (upsert) un pronóstico."""
+        """Crear o actualizar (upsert) un pronóstico en una quiniela específica."""
         partido_id = request.data.get('partido')
+        quiniela_id = request.data.get('quiniela')
+
+        if not quiniela_id:
+            return Response({'error': 'Debes especificar una quiniela.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verificar que la quiniela pertenezca al usuario
+        if not Quiniela.objects.filter(id=quiniela_id, usuario=request.user).exists():
+            return Response({'error': 'Quiniela no válida.'}, status=status.HTTP_403_FORBIDDEN)
+
         try:
             existing = PronosticoPartido.objects.get(
-                usuario=request.user, partido_id=partido_id
+                quiniela_id=quiniela_id, partido_id=partido_id
             )
             serializer = self.get_serializer(existing, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
@@ -172,16 +171,23 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='bulk')
     def bulk_create(self, request):
-        """POST /api/pronosticos/partidos/bulk/ — Guardar múltiples."""
+        """POST /api/pronosticos/partidos/bulk/ — Guardar múltiples en una quiniela."""
+        quiniela_id = request.data.get('quiniela')
         pronosticos_data = request.data.get('pronosticos', [])
-        resultados = []
 
+        if not quiniela_id:
+            return Response({'error': 'Debes especificar una quiniela.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not Quiniela.objects.filter(id=quiniela_id, usuario=request.user).exists():
+            return Response({'error': 'Quiniela no válida.'}, status=status.HTTP_403_FORBIDDEN)
+
+        resultados = []
         with transaction.atomic():
             for item in pronosticos_data:
                 partido_id = item.get('partido')
                 try:
                     obj, created = PronosticoPartido.objects.get_or_create(
-                        usuario=request.user,
+                        quiniela_id=quiniela_id,
                         partido_id=partido_id,
                         defaults={
                             'goles_local_pred': item['goles_local_pred'],
@@ -203,15 +209,22 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='resumen')
     def resumen(self, request):
-        """GET /api/pronosticos/resumen/ — Resumen de puntos del usuario."""
-        usuario = request.user
-        pronosticos = PronosticoPartido.objects.filter(usuario=usuario)
+        """GET /api/pronosticos/resumen/?quiniela=ID — Resumen de una quiniela."""
+        quiniela_id = request.query_params.get('quiniela')
+        if not quiniela_id:
+            return Response({'error': 'Debes especificar una quiniela.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            quiniela = Quiniela.objects.get(id=quiniela_id, usuario=request.user)
+        except Quiniela.DoesNotExist:
+            return Response({'error': 'Quiniela no encontrada.'}, status=status.HTTP_404_NOT_FOUND)
+
+        pronosticos = PronosticoPartido.objects.filter(quiniela=quiniela)
         total_puntos = pronosticos.aggregate(total=Sum('puntos_ganados'))['total'] or 0
         completados = pronosticos.count()
         total_partidos = Partido.objects.count()
 
-        from .models import PronosticoTorneo
-        torneo = PronosticoTorneo.objects.filter(usuario=usuario).first()
+        torneo = PronosticoTorneo.objects.filter(quiniela=quiniela).first()
         especiales_completos = False
         if torneo:
             especiales_completos = all([
@@ -219,11 +232,12 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
                 torneo.subcampeon,
                 torneo.tercer_lugar,
                 torneo.cuarto_lugar,
-                torneo.goleador,
-                torneo.asistente
+                (torneo.goleador or torneo.goleador_nombre),
+                (torneo.asistente or torneo.asistente_nombre)
             ])
 
         return Response({
+            'quiniela_nombre': quiniela.nombre,
             'puntos_totales': total_puntos,
             'pronósticos_completados': completados,
             'total_partidos': total_partidos,
@@ -234,22 +248,30 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
 
 class PronosticoTorneoViewSet(viewsets.ModelViewSet):
     """
-    GET/POST /api/pronosticos/torneo/ — Predicciones especiales del usuario.
+    GET/POST /api/pronosticos/torneo/ — Predicciones especiales de una quiniela.
     """
     serializer_class = PronosticoTorneoSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'post', 'put', 'patch']
 
     def get_queryset(self):
-        return PronosticoTorneo.objects.filter(usuario=self.request.user)
-
-    def get_object(self):
-        obj, _ = PronosticoTorneo.objects.get_or_create(usuario=self.request.user)
-        return obj
+        quiniela_id = self.request.query_params.get('quiniela')
+        if not quiniela_id:
+            return PronosticoTorneo.objects.none()
+        return PronosticoTorneo.objects.filter(quiniela_id=quiniela_id, quiniela__usuario=self.request.user)
 
     def create(self, request, *args, **kwargs):
-        """Upsert de predicciones especiales."""
-        obj, _ = PronosticoTorneo.objects.get_or_create(usuario=request.user)
+        """Upsert de predicciones especiales en una quiniela."""
+        quiniela_id = request.data.get('quiniela')
+        if not quiniela_id:
+            return Response({'error': 'Debes especificar una quiniela.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            quiniela = Quiniela.objects.get(id=quiniela_id, usuario=request.user)
+        except Quiniela.DoesNotExist:
+            return Response({'error': 'Quiniela no encontrada.'}, status=status.HTTP_404_NOT_FOUND)
+
+        obj, _ = PronosticoTorneo.objects.get_or_create(quiniela=quiniela)
         serializer = self.get_serializer(obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()

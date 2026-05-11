@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Equipo, Grupo, GrupoEquipo, Fase, Partido,
-    Jugador, PronosticoPartido, PronosticoTorneo
+    Jugador, Quiniela, PronosticoPartido, PronosticoTorneo
 )
 
 
@@ -63,15 +63,22 @@ class JugadorAdmin(admin.ModelAdmin):
     search_fields = ['nombre', 'equipo__nombre']
 
 
+@admin.register(Quiniela)
+class QuinielaAdmin(admin.ModelAdmin):
+    list_display = ['nombre', 'usuario', 'puntos_totales', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['nombre', 'usuario__username']
+
+
 @admin.register(PronosticoPartido)
 class PronosticoPartidoAdmin(admin.ModelAdmin):
-    list_display = ['usuario', 'partido', 'goles_local_pred', 'goles_visitante_pred', 'puntos_ganados']
+    list_display = ['quiniela', 'partido', 'goles_local_pred', 'goles_visitante_pred', 'puntos_ganados']
     list_filter = ['partido__fase']
-    search_fields = ['usuario__username', 'partido__equipo_local__nombre']
+    search_fields = ['quiniela__nombre', 'quiniela__usuario__username', 'partido__equipo_local__nombre']
     readonly_fields = ['created_at', 'updated_at']
 
 
 @admin.register(PronosticoTorneo)
 class PronosticoTorneoAdmin(admin.ModelAdmin):
-    list_display = ['usuario', 'campeon', 'subcampeon', 'goleador', 'puntos_especiales']
+    list_display = ['quiniela', 'campeon', 'subcampeon', 'goleador', 'puntos_especiales']
     readonly_fields = ['created_at', 'updated_at']

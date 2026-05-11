@@ -26,13 +26,21 @@ export const jugadoresAPI = {
   list: (params) => api.get('/jugadores/', { params }),
 };
 
+export const quinielasAPI = {
+  list: () => api.get('/quinielas/'),
+  get: (id) => api.get(`/quinielas/${id}/`),
+  create: (nombre) => api.post('/quinielas/', { nombre }),
+  update: (id, nombre) => api.patch(`/quinielas/${id}/`, { nombre }),
+  delete: (id) => api.delete(`/quinielas/${id}/`),
+};
+
 export const pronosticosAPI = {
-  listPartidos: () => api.get('/pronosticos/partidos/'),
-  savePartido: (data) => api.post('/pronosticos/partidos/', data),
-  bulkSave: (pronosticos) => api.post('/pronosticos/partidos/bulk/', { pronosticos }),
-  resumen: () => api.get('/pronosticos/partidos/resumen/'),
-  getTorneo: () => api.get('/pronosticos/torneo/'),
-  saveTorneo: (data) => api.post('/pronosticos/torneo/', data),
+  listPartidos: (quinielaId) => api.get('/pronosticos/partidos/', { params: { quiniela: quinielaId } }),
+  savePartido: (quinielaId, data) => api.post('/pronosticos/partidos/', { ...data, quiniela: quinielaId }),
+  bulkSave: (quinielaId, pronosticos) => api.post('/pronosticos/partidos/bulk/', { pronosticos, quiniela: quinielaId }),
+  resumen: (quinielaId) => api.get('/pronosticos/partidos/resumen/', { params: { quiniela: quinielaId } }),
+  getTorneo: (quinielaId) => api.get('/pronosticos/torneo/', { params: { quiniela: quinielaId } }),
+  saveTorneo: (quinielaId, data) => api.post('/pronosticos/torneo/', { ...data, quiniela: quinielaId }),
 };
 
 export const leaderboardAPI = {

@@ -195,12 +195,34 @@ class Jugador(models.Model):
         return f"{self.nombre} ({self.equipo.nombre_corto})"
 
 
-class PronosticoPartido(models.Model):
-    """Pronóstico de un usuario para un partido específico."""
+class Quiniela(models.Model):
+    """Representa una quiniela específica de un usuario."""
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='pronosticos_partido'
+        related_name='quinielas'
+    )
+    nombre = models.CharField(max_length=100)
+    puntos_totales = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Quiniela'
+        verbose_name_plural = 'Quinielas'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.nombre} (@{self.usuario.username})"
+
+
+class PronosticoPartido(models.Model):
+    """Pronóstico de un usuario para un partido específico dentro de una quiniela."""
+    quiniela = models.ForeignKey(
+        Quiniela,
+        on_delete=models.CASCADE,
+        related_name='pronosticos_partido',
+        null=True, blank=True
     )
     partido = models.ForeignKey(
         Partido,
@@ -214,20 +236,21 @@ class PronosticoPartido(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('usuario', 'partido')
+        unique_together = ('quiniela', 'partido')
         verbose_name = 'Pronóstico de Partido'
         verbose_name_plural = 'Pronósticos de Partidos'
 
     def __str__(self):
-        return f"{self.usuario} → {self.partido} | {self.goles_local_pred}-{self.goles_visitante_pred}"
+        return f"{self.quiniela.nombre} → {self.partido} | {self.goles_local_pred}-{self.goles_visitante_pred}"
 
 
 class PronosticoTorneo(models.Model):
-    """Predicciones especiales del torneo (bonos)."""
-    usuario = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
+    """Predicciones especiales del torneo (bonos) para una quiniela."""
+    quiniela = models.OneToOneField(
+        Quiniela,
         on_delete=models.CASCADE,
-        related_name='pronostico_torneo'
+        related_name='pronostico_torneo',
+        null=True, blank=True
     )
     campeon = models.ForeignKey(
         Equipo, related_name='pronosticos_campeon',
@@ -264,4 +287,4 @@ class PronosticoTorneo(models.Model):
         verbose_name_plural = 'Pronósticos de Torneo'
 
     def __str__(self):
-        return f"Torneo → {self.usuario}"
+        return f"Torneo → {self.quiniela.nombre}"

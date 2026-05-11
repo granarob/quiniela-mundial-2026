@@ -3,10 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../components/layout/Layout';
 import { useAuth } from '../context/AuthContext';
+import { useQuiniela } from '../context/QuinielaContext';
 import { pronosticosAPI, leaderboardAPI, fasesAPI } from '../api/matches';
+import QuinielaManager from '../components/dashboard/QuinielaManager';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { selectedQuiniela } = useQuiniela();
   const navigate = useNavigate();
   const [resumen, setResumen] = useState(null);
   const [miPosicion, setMiPosicion] = useState(null);
@@ -15,9 +18,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function load() {
+      if (!selectedQuiniela) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
       try {
         const [resRes, posRes, fasesRes] = await Promise.all([
-          pronosticosAPI.resumen(),
+          pronosticosAPI.resumen(selectedQuiniela.id),
           leaderboardAPI.miPosicion(),
           fasesAPI.list(),
         ]);
@@ -34,11 +42,13 @@ export default function Dashboard() {
         setResumen(resumenData);
         setMiPosicion(posRes.data);
         setFases(fasesRes.data.results || fasesRes.data);
-      } catch {}
+      } catch (err) {
+        console.error(err);
+      }
       finally { setLoading(false); }
     }
     load();
-  }, []);
+  }, [selectedQuiniela]);
 
   const stats = [
     { label: 'Puntos totales', value: resumen?.puntos_totales ?? '—', icon: '📊', accent: true },
@@ -58,6 +68,16 @@ export default function Dashboard() {
             <h1 style={{ marginBottom: 'var(--space-10)' }}>
               👋 {user?.username}
             </h1>
+          </motion.div>
+
+          {/* Manager de Quinielas */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.1 }}
+            style={{ marginBottom: 'var(--space-12)' }}
+          >
+            <QuinielaManager />
           </motion.div>
 
           {/* Stats Cards */}

@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext';
+import { QuinielaProvider } from './context/QuinielaContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Eager load critical pages
@@ -34,7 +35,8 @@ function LoadingFallback() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <QuinielaProvider>
+        <BrowserRouter>
         <Suspense fallback={<LoadingFallback />}>
           <AnimatePresence mode="wait">
             <Routes>
@@ -74,6 +76,7 @@ export default function App() {
           </AnimatePresence>
         </Suspense>
       </BrowserRouter>
+      </QuinielaProvider>
     </AuthProvider>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { pronosticosAPI } from '../api/matches';
+import { useQuiniela } from '../context/QuinielaContext';
 
 /**
  * Hook para gestionar pronósticos con auto-save debounce.
@@ -7,6 +8,9 @@ import { pronosticosAPI } from '../api/matches';
  * @returns {{ predictions, setPrediction, saveStatus, saveAll, isSaving }}
  */
 export default function usePredictions(partidos = []) {
+  const { selectedQuiniela } = useQuiniela();
+  const quinielaId = selectedQuiniela?.id;
+
   // { [partidoId]: { goles_local_pred, goles_visitante_pred, saved, dirty } }
   const [predictions, setPredictions] = useState({});
   const [saveStatus, setSaveStatus] = useState('idle'); // idle | saving | saved | error
@@ -14,20 +18,25 @@ export default function usePredictions(partidos = []) {
   const debounceTimers = useRef({});
   const mountedRef = useRef(true);
 
-  // Cargar pronósticos existentes del usuario al montar
+  // Cargar pronósticos existentes al montar o cambiar de quiniela/partidos
   useEffect(() => {
     mountedRef.current = true;
-    loadExisting();
+    if (quinielaId) {
+      loadExisting();
+    } else {
+      setPredictions({});
+    }
     return () => {
       mountedRef.current = false;
       // Limpiar timers
       Object.values(debounceTimers.current).forEach(clearTimeout);
     };
-  }, [partidos]);
+  }, [partidos, quinielaId]);
 
   async function loadExisting() {
+    if (!quinielaId) return;
     try {
-      const res = await pronosticosAPI.listPartidos();
+      const res = await pronosticosAPI.listPartidos(quinielaId);
       const list = res.data.results || res.data;
       const map = {};
       list.forEach(p => {
@@ -82,7 +91,7 @@ export default function usePredictions(partidos = []) {
       setSaveStatus('saving');
       setIsSaving(true);
 
-      pronosticosAPI.savePartido({
+      pronosticosAPI.savePartido(quinielaId, {
         partido: partidoId,
         goles_local_pred: p.goles_local_pred,
         goles_visitante_pred: p.goles_visitante_pred,
@@ -123,7 +132,7 @@ export default function usePredictions(partidos = []) {
     setIsSaving(true);
 
     try {
-      await pronosticosAPI.bulkSave(dirtyList);
+      await pronosticosAPI.bulkSave(quinielaId, dirtyList);
       setPredictions(prev => {
         const next = { ...prev };
         dirtyList.forEach(({ partido }) => {

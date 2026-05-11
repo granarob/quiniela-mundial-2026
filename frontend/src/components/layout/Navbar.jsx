@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
+import { useQuiniela } from '../../context/QuinielaContext';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { quinielas, selectedQuiniela, selectQuiniela } = useQuiniela();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [quinielaMenuOpen, setQuinielaMenuOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -62,6 +65,80 @@ export default function Navbar() {
           ))}
         </div>
 
+        {/* Quiniela Selector */}
+        {user && selectedQuiniela && (
+          <div style={{ position: 'relative', marginLeft: 'auto', marginRight: 'var(--space-4)' }} className={styles.desktopNav}>
+            <button 
+              onClick={() => setQuinielaMenuOpen(!quinielaMenuOpen)}
+              className="btn btn-ghost btn-sm"
+              style={{ 
+                background: 'rgba(245, 166, 35, 0.1)', 
+                borderColor: 'rgba(245, 166, 35, 0.2)',
+                color: 'var(--color-accent-gold)',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)'
+              }}
+            >
+              📋 {selectedQuiniela.nombre} <span style={{ fontSize: '10px' }}>▼</span>
+            </button>
+            <AnimatePresence>
+              {quinielaMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  style={{
+                    position: 'absolute', top: '100%', right: 0, marginTop: 'var(--space-2)',
+                    background: 'rgba(15, 12, 41, 0.95)', 
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: 'var(--radius-md)',
+                    minWidth: 200, zIndex: 110,
+                    padding: 'var(--space-2)',
+                    boxShadow: 'var(--shadow-xl)'
+                  }}
+                >
+                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', padding: 'var(--space-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Cambiar Quiniela
+                  </div>
+                  {quinielas.map(q => (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        selectQuiniela(q);
+                        setQuinielaMenuOpen(false);
+                      }}
+                      style={{
+                        width: '100%', textAlign: 'left', padding: 'var(--space-2) var(--space-3)',
+                        background: selectedQuiniela.id === q.id ? 'rgba(245,166,35,0.1)' : 'transparent',
+                        color: selectedQuiniela.id === q.id ? 'var(--color-accent-gold)' : 'var(--text-primary)',
+                        border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+                        fontSize: 'var(--text-sm)', fontWeight: selectedQuiniela.id === q.id ? 700 : 400
+                      }}
+                    >
+                      {q.nombre}
+                    </button>
+                  ))}
+                  <div style={{ borderTop: '1px solid var(--glass-border)', marginTop: 'var(--space-2)', paddingTop: 'var(--space-2)' }}>
+                    <Link 
+                      to="/dashboard" 
+                      onClick={() => setQuinielaMenuOpen(false)}
+                      style={{ 
+                        fontSize: '11px', color: 'var(--color-accent)', 
+                        textDecoration: 'none', display: 'block', textAlign: 'center' 
+                      }}
+                    >
+                      + Gestionar Quinielas
+                    </Link>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
         {/* Auth Actions */}
         <div className={styles.actions}>
           {user ? (
@@ -111,6 +188,34 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            {user && (
+              <div style={{ padding: 'var(--space-4) var(--space-6)', borderBottom: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.02)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 'var(--space-3)' }}>
+                  Quiniela Activa
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                  {quinielas.map(q => (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        selectQuiniela(q);
+                        setMenuOpen(false);
+                      }}
+                      style={{
+                        textAlign: 'left', padding: 'var(--space-2) var(--space-3)',
+                        background: selectedQuiniela?.id === q.id ? 'var(--color-accent)' : 'rgba(255,255,255,0.05)',
+                        color: selectedQuiniela?.id === q.id ? 'white' : 'var(--text-primary)',
+                        border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer',
+                        fontSize: 'var(--text-sm)', fontWeight: selectedQuiniela?.id === q.id ? 700 : 400
+                      }}
+                    >
+                      {q.nombre} {selectedQuiniela?.id === q.id ? '✓' : ''}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {user ? (
               <button onClick={logout} className={styles.mobileLink}>🚪 Cerrar sesión</button>
             ) : (

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../components/layout/Layout';
 import { useAuth } from '../context/AuthContext';
+import { useQuiniela } from '../context/QuinielaContext';
 import { equiposAPI, jugadoresAPI, pronosticosAPI } from '../api/matches';
 
 /**
@@ -11,6 +12,8 @@ import { equiposAPI, jugadoresAPI, pronosticosAPI } from '../api/matches';
  */
 export default function SpecialPredictions() {
   const { user } = useAuth();
+  const { selectedQuiniela } = useQuiniela();
+  const quinielaId = selectedQuiniela?.id;
   const location = useLocation();
   const navigate = useNavigate();
   const isForced = location.state?.forced;
@@ -30,11 +33,16 @@ export default function SpecialPredictions() {
 
   useEffect(() => {
     async function load() {
+      if (!quinielaId) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
       try {
         const [eqRes, jugRes, predRes] = await Promise.all([
           equiposAPI.list({ participando: 'true', ordering: 'nombre' }),
           jugadoresAPI.list({ participando: 'true', ordering: 'nombre' }),
-          pronosticosAPI.getTorneo(),
+          pronosticosAPI.getTorneo(quinielaId),
         ]);
         setEquipos(eqRes.data.results || eqRes.data);
         setJugadores(jugRes.data.results || jugRes.data);
@@ -50,14 +58,23 @@ export default function SpecialPredictions() {
             asistente: pred.asistente || '',
             asistente_nombre: pred.asistente_nombre || '',
           });
+        } else {
+          setForm({
+            campeon: '', subcampeon: '', tercer_lugar: '', cuarto_lugar: '',
+            goleador: '', goleador_nombre: '',
+            asistente: '', asistente_nombre: '',
+          });
         }
-      } catch {}
+      } catch (err) {
+        console.error(err);
+      }
       finally { setLoading(false); }
     }
     load();
-  }, []);
+  }, [quinielaId]);
 
   async function handleSave() {
+    if (!quinielaId) return;
     setSaving(true);
     try {
       const payload = {};
@@ -65,7 +82,7 @@ export default function SpecialPredictions() {
         if (v !== '') payload[k] = v;
         else payload[k] = null;
       });
-      await pronosticosAPI.saveTorneo(payload);
+      await pronosticosAPI.saveTorneo(quinielaId, payload);
       setSaved(true);
       if (isForced) {
         setTimeout(() => navigate('/dashboard'), 2000);
