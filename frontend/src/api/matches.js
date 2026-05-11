@@ -34,6 +34,12 @@ export const quinielasAPI = {
   delete: (id) => api.delete(`/quinielas/${id}/`),
 };
 
+export const pagosAPI = {
+  create: (formData) => api.post('/pagos/', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+};
+
 export const pronosticosAPI = {
   listPartidos: (quinielaId) => api.get('/pronosticos/partidos/', { params: { quiniela: quinielaId } }),
   savePartido: (quinielaId, data) => api.post('/pronosticos/partidos/', { ...data, quiniela: quinielaId }),

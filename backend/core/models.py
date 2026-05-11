@@ -197,12 +197,19 @@ class Jugador(models.Model):
 
 class Quiniela(models.Model):
     """Representa una quiniela específica de un usuario."""
+    ESTADOS = [
+        ('borrador', 'Borrador (No participa)'),
+        ('pendiente', 'Pendiente de Validación'),
+        ('pagada', 'Pagada (Participando)'),
+    ]
+
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='quinielas'
     )
     nombre = models.CharField(max_length=100)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='borrador')
     puntos_totales = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -213,7 +220,36 @@ class Quiniela(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.nombre} (@{self.usuario.username})"
+        return f"{self.nombre} (@{self.usuario.username}) - [{self.estado}]"
+
+
+class Pago(models.Model):
+    """Registro de pagos de quinielas."""
+    MONEDAS = [
+        ('VES', 'Bolívares (Bs.)'),
+        ('USD', 'Dólares ($)'),
+    ]
+    ESTADOS_PAGO = [
+        ('pendiente', 'Pendiente'),
+        ('completado', 'Completado'),
+        ('rechazado', 'Rechazado'),
+    ]
+
+    quiniela = models.ForeignKey(Quiniela, on_delete=models.CASCADE, related_name='pagos')
+    monto = models.DecimalField(max_digits=12, decimal_places=2)
+    moneda = models.CharField(max_length=3, choices=MONEDAS)
+    referencia = models.CharField(max_length=100)
+    comprobante = models.ImageField(upload_to='pagos/', null=True, blank=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS_PAGO, default='pendiente')
+    fecha_pago = models.DateTimeField(auto_now_add=True)
+    notas_admin = models.TextField(blank=True, default='')
+
+    class Meta:
+        verbose_name = 'Pago'
+        verbose_name_plural = 'Pagos'
+
+    def __str__(self):
+        return f"Pago {self.referencia} - {self.quiniela.nombre}"
 
 
 class PronosticoPartido(models.Model):

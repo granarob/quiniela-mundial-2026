@@ -7,12 +7,12 @@ from django.db import transaction
 
 from .models import (
     Equipo, Grupo, Fase, Partido, Jugador,
-    Quiniela, PronosticoPartido, PronosticoTorneo
+    Quiniela, Pago, PronosticoPartido, PronosticoTorneo
 )
 from .serializers import (
     EquipoSerializer, GrupoSerializer, FaseSerializer,
     PartidoListSerializer, PartidoDetailSerializer, QuinielaSerializer,
-    JugadorSerializer, PronosticoPartidoSerializer,
+    JugadorSerializer, PronosticoPartidoSerializer, PagoSerializer,
     PronosticoBulkSerializer, PronosticoTorneoSerializer
 )
 from rest_framework.pagination import PageNumberPagination
@@ -112,6 +112,29 @@ class PartidoViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 
+class JugadorViewSet(viewsets.ReadOnlyModelViewSet):
+    """GET /api/jugadores/ — Planteles (filtrable por equipo)."""
+    queryset = Jugador.objects.select_related('equipo').all()
+    serializer_class = JugadorSerializer
+    permission_classes = [AllowAny]
+    pagination_class = LargeResultsPagination
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['nombre', 'equipo__nombre']
+    ordering_fields = ['nombre', 'goles', 'asistencias']
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        equipo_id = self.request.query_params.get('equipo')
+        participando = self.request.query_params.get('participando')
+        
+        if equipo_id:
+            qs = qs.filter(equipo_id=equipo_id)
+        if participando == 'true':
+            # Solo jugadores de equipos asignados a un grupo
+            qs = qs.filter(equipo__grupoequipo__isnull=False).distinct()
+        return qs
+
+
 class QuinielaViewSet(viewsets.ModelViewSet):
     """GET/POST /api/quinielas/ — Gestionar quinielas del usuario."""
     serializer_class = QuinielaSerializer
@@ -122,6 +145,25 @@ class QuinielaViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(usuario=self.request.user)
+
+
+class PagoViewSet(viewsets.ModelViewSet):
+    """POST /api/pagos/ — Reportar un pago."""
+    serializer_class = PagoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Pago.objects.filter(quiniela__usuario=self.request.user)
+
+    def perform_create(self, serializer):
+        # Al crear un pago, marcamos la quiniela como 'pendiente'
+        quiniela = serializer.validated_data['quiniela']
+        if quiniela.usuario != self.request.user:
+            raise serializers.ValidationError("No puedes pagar una quiniela que no es tuya.")
+        
+        pago = serializer.save()
+        quiniela.estado = 'pendiente'
+        quiniela.save()
 
 
 # ─────────────────────────────────────────────────────────
@@ -283,32 +325,54 @@ class PronosticoTorneoViewSet(viewsets.ModelViewSet):
 # ─────────────────────────────────────────────────────────
 
 class LeaderboardViewSet(viewsets.ViewSet):
-    """GET /api/leaderboard/ — Ranking global."""
+    """GET /api/leaderboard/ — Ranking global de quinielas pagadas."""
     permission_classes = [AllowAny]
 
     def list(self, request):
-        from users.models import PerfilUsuario
-        from users.serializers import PerfilRankingSerializer
-        perfiles = PerfilUsuario.objects.select_related('usuario').order_by(
-            '-puntos_totales'
+        quinielas = Quiniela.objects.filter(estado='pagada').select_related('usuario').order_by(
+            '-puntos_totales', 'created_at'
         )[:100]
-        serializer = PerfilRankingSerializer(perfiles, many=True)
-        return Response(serializer.data)
+        
+        data = []
+        for i, q in enumerate(quinielas):
+            data.append({
+                'posicion': i + 1,
+                'quiniela_id': q.id,
+                'nombre': q.nombre,
+                'username': q.usuario.username,
+                'avatar_url': getattr(q.usuario, 'perfilusuario', None).avatar_url if hasattr(q.usuario, 'perfilusuario') else None,
+                'puntos': q.puntos_totales
+            })
+        return Response(data)
 
     @action(detail=False, methods=['get'], url_path='mi-posicion')
     def mi_posicion(self, request):
-        if not request.user.is_authenticated:
+        quiniela_id = request.query_params.get('quiniela')
+        if not request.user.is_authenticated or not quiniela_id:
             return Response({'posicion': None, 'puntos': 0})
-        from users.models import PerfilUsuario
+        
         try:
-            perfil = PerfilUsuario.objects.get(usuario=request.user)
-        except PerfilUsuario.DoesNotExist:
-            return Response({'posicion': None, 'puntos': 0})
+            quiniela = Quiniela.objects.get(id=quiniela_id, usuario=request.user)
+        except Quiniela.DoesNotExist:
+            return Response({'posicion': None, 'puntos': 0}, status=status.HTTP_404_NOT_FOUND)
 
-        posicion = PerfilUsuario.objects.filter(
-            puntos_totales__gt=perfil.puntos_totales
+        if quiniela.estado != 'pagada':
+            return Response({
+                'posicion': 'No participa', 
+                'puntos': quiniela.puntos_totales,
+                'estado': quiniela.estado
+            })
+
+        posicion = Quiniela.objects.filter(
+            estado='pagada',
+            puntos_totales__gt=quiniela.puntos_totales
         ).count() + 1
-        return Response({'posicion': posicion, 'puntos': perfil.puntos_totales})
+        
+        return Response({
+            'posicion': posicion, 
+            'puntos': quiniela.puntos_totales,
+            'estado': quiniela.estado
+        })
 
 
 # ─────────────────────────────────────────────────────────

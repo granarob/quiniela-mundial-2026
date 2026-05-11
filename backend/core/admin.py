@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Equipo, Grupo, GrupoEquipo, Fase, Partido,
-    Jugador, Quiniela, PronosticoPartido, PronosticoTorneo
+    Jugador, Quiniela, Pago, PronosticoPartido, PronosticoTorneo
 )
 
 
@@ -65,9 +65,31 @@ class JugadorAdmin(admin.ModelAdmin):
 
 @admin.register(Quiniela)
 class QuinielaAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'usuario', 'puntos_totales', 'created_at']
-    list_filter = ['created_at']
+    list_display = ['nombre', 'usuario', 'estado', 'puntos_totales', 'created_at']
+    list_filter = ['estado', 'created_at']
     search_fields = ['nombre', 'usuario__username']
+
+
+@admin.register(Pago)
+class PagoAdmin(admin.ModelAdmin):
+    list_display = ['referencia', 'quiniela', 'monto', 'moneda', 'estado', 'fecha_pago']
+    list_filter = ['estado', 'moneda', 'fecha_pago']
+    search_fields = ['referencia', 'quiniela__nombre', 'quiniela__usuario__username']
+    actions = ['aprobar_pago', 'rechazar_pago']
+
+    def aprobar_pago(self, request, queryset):
+        for pago in queryset:
+            pago.estado = 'completado'
+            pago.save()
+            # Activar la quiniela asociada
+            quiniela = pago.quiniela
+            quiniela.estado = 'pagada'
+            quiniela.save()
+        self.message_user(request, f"{queryset.count()} pagos aprobados y quinielas activadas.")
+
+    def rechazar_pago(self, request, queryset):
+        queryset.update(estado='rechazado')
+        self.message_user(request, f"{queryset.count()} pagos rechazados.")
 
 
 @admin.register(PronosticoPartido)

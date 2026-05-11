@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Equipo, Grupo, GrupoEquipo, Fase, Partido,
-    Jugador, Quiniela, PronosticoPartido, PronosticoTorneo
+    Jugador, Quiniela, Pago, PronosticoPartido, PronosticoTorneo
 )
 
 
@@ -85,8 +85,18 @@ class QuinielaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quiniela
-        fields = ['id', 'nombre', 'usuario', 'username', 'puntos_totales', 'created_at', 'updated_at']
+        fields = ['id', 'nombre', 'usuario', 'username', 'estado', 'puntos_totales', 'created_at', 'updated_at']
         read_only_fields = ['usuario', 'puntos_totales', 'created_at', 'updated_at']
+
+
+class PagoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pago
+        fields = [
+            'id', 'quiniela', 'monto', 'moneda', 'referencia',
+            'comprobante', 'estado', 'fecha_pago', 'notas_admin'
+        ]
+        read_only_fields = ['estado', 'fecha_pago', 'notas_admin']
 
 
 class JugadorSerializer(serializers.ModelSerializer):

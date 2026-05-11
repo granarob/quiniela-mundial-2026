@@ -3,27 +3,32 @@ import { motion } from 'framer-motion';
 import Layout from '../components/layout/Layout';
 import { leaderboardAPI } from '../api/matches';
 import { useAuth } from '../context/AuthContext';
+import { useQuiniela } from '../context/QuinielaContext';
 
 export default function Leaderboard() {
   const [ranking, setRanking] = useState([]);
   const [miPosicion, setMiPosicion] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { selectedQuiniela } = useQuiniela();
 
   useEffect(() => {
     async function load() {
       try {
         const [rRes] = await Promise.all([leaderboardAPI.list()]);
         setRanking(rRes.data.results || rRes.data);
-        if (user) {
-          const posRes = await leaderboardAPI.miPosicion();
+        
+        if (user && selectedQuiniela) {
+          const posRes = await leaderboardAPI.miPosicion(selectedQuiniela.id);
           setMiPosicion(posRes.data);
+        } else {
+          setMiPosicion(null);
         }
       } catch {}
       finally { setLoading(false); }
     }
     load();
-  }, [user]);
+  }, [user, selectedQuiniela]);
 
   const medalIcon = (i) => {
     if (i === 0) return '🥇';
@@ -42,17 +47,35 @@ export default function Leaderboard() {
             <p className="section-subtitle">¿En qué posición estás?</p>
           </div>
 
-          {miPosicion?.posicion && (
+          {miPosicion && (
             <motion.div
               className="glass-card"
-              style={{ padding: 'var(--space-5)', marginBottom: 'var(--space-8)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderColor: 'var(--color-accent)' }}
+              style={{ 
+                padding: 'var(--space-5)', marginBottom: 'var(--space-8)', 
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                borderColor: miPosicion.estado === 'pagada' ? 'var(--color-accent)' : 'var(--color-warning)' 
+              }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <span style={{ fontWeight: 600 }}>Tu posición: #{miPosicion.posicion}</span>
-              <span style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'var(--text-xl)' }}>
-                {miPosicion.puntos} pts
-              </span>
+              <div>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                  Quiniela: <strong>{selectedQuiniela?.nombre}</strong>
+                </div>
+                <div style={{ fontWeight: 600 }}>
+                  Posición: {typeof miPosicion.posicion === 'number' ? `#${miPosicion.posicion}` : miPosicion.posicion}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'var(--text-xl)' }}>
+                  {miPosicion.puntos} pts
+                </span>
+                {miPosicion.estado !== 'pagada' && (
+                  <div style={{ fontSize: '10px', color: 'var(--color-warning)' }}>
+                    Actívala para participar
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
 
@@ -62,25 +85,23 @@ export default function Leaderboard() {
             <div className="glass-card" style={{ overflow: 'hidden' }}>
               {ranking.length === 0 ? (
                 <div style={{ padding: 'var(--space-12)', textAlign: 'center', color: 'var(--text-muted)' }}>
-                  Aún no hay participantes en el ranking.
+                  Aún no hay quinielas activas participando.
                 </div>
-              ) : ranking.map((perfil, i) => (
+              ) : ranking.map((item, i) => (
                 <motion.div
-                  key={perfil.id}
+                  key={item.quiniela_id}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 'var(--space-4)',
                     padding: 'var(--space-4) var(--space-6)',
                     borderBottom: '1px solid var(--glass-border)',
-                    background: user?.username === perfil.username ? 'rgba(233,69,96,0.08)' : 'transparent',
+                    background: selectedQuiniela?.id === item.quiniela_id ? 'rgba(233,69,96,0.08)' : 'transparent',
                     transition: 'background 0.15s',
                   }}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  onMouseOver={e => { if (user?.username !== perfil.username) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-                  onMouseOut={e => { e.currentTarget.style.background = user?.username === perfil.username ? 'rgba(233,69,96,0.08)' : 'transparent'; }}
                 >
                   <span style={{
                     minWidth: 36,
@@ -92,13 +113,15 @@ export default function Leaderboard() {
                     {medalIcon(i)}
                   </span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, color: user?.username === perfil.username ? 'var(--color-accent)' : 'var(--text-primary)' }}>
-                      {perfil.username} {user?.username === perfil.username && '← tú'}
+                    <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
+                      {item.nombre}
                     </div>
-                    {perfil.pais_favorito && <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{perfil.pais_favorito}</div>}
+                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                      by @{item.username} {selectedQuiniela?.id === item.quiniela_id && ' (Tú)'}
+                    </div>
                   </div>
                   <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'var(--text-lg)', color: 'var(--color-accent-gold)' }}>
-                    {perfil.puntos_totales} <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 400 }}>pts</span>
+                    {item.puntos} <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 400 }}>pts</span>
                   </div>
                 </motion.div>
               ))}
