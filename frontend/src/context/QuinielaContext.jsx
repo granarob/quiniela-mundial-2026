@@ -23,15 +23,16 @@ export function QuinielaProvider({ children }) {
     setLoading(true);
     try {
       const res = await quinielasAPI.list();
-      setQuinielas(res.data);
+      const data = res.data.results || res.data;
+      setQuinielas(data);
       
       // Intentar recuperar la última quiniela seleccionada de localStorage
       const savedId = localStorage.getItem('selected_quiniela_id');
-      if (savedId && res.data.find(q => q.id === parseInt(savedId))) {
-        setSelectedQuiniela(res.data.find(q => q.id === parseInt(savedId)));
-      } else if (res.data.length > 0) {
+      if (savedId && data.find(q => q.id === parseInt(savedId))) {
+        setSelectedQuiniela(data.find(q => q.id === parseInt(savedId)));
+      } else if (data.length > 0) {
         // Por defecto la primera
-        selectQuiniela(res.data[0]);
+        selectQuiniela(data[0]);
       }
     } catch (err) {
       console.error("Error cargando quinielas", err);

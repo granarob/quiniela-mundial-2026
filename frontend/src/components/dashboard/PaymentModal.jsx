@@ -25,34 +25,55 @@ const DataField = ({ label, value, onCopy }) => (
   </div>
 );
 
+const RequiredBadge = () => (
+  <span style={{ 
+    background: 'rgba(220,53,69,0.2)', color: '#ff6b7a', 
+    fontSize: '9px', fontWeight: 700, padding: '1px 5px', 
+    borderRadius: '3px', marginLeft: '6px', verticalAlign: 'middle'
+  }}>OBLIGATORIO</span>
+);
+
 export default function PaymentModal({ quiniela, onClose, onSuccess }) {
-  const [moneda, setMoneda] = useState('VES');
+  const [metodo, setMetodo] = useState('pagomovil'); // pagomovil | zelle | binance
   const [referencia, setReferencia] = useState('');
-  const [comprobante, setComprobante] = useState(null);
+  const [telefono, setTelefono] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const esBinance = metodo === 'binance';
+  const moneda = metodo === 'pagomovil' ? 'VES' : metodo === 'zelle' ? 'USD' : 'USDT';
+  const monto = metodo === 'pagomovil' ? 6000 : 10;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!referencia) return setError('La referencia es obligatoria');
-    
+    if (!referencia.trim()) {
+      return setError(esBinance ? 'El número de transacción es obligatorio' : 'El número de referencia es obligatorio');
+    }
+    if (!esBinance && !telefono.trim()) {
+      return setError('El número de teléfono de origen es obligatorio');
+    }
+
     setLoading(true);
     setError('');
 
-    const formData = new FormData();
-    formData.append('quiniela', quiniela.id);
-    formData.append('monto', moneda === 'VES' ? 6000 : 10);
-    formData.append('moneda', moneda);
-    formData.append('referencia', referencia);
-    if (comprobante) {
-      formData.append('comprobante', comprobante);
-    }
+    // Construimos la referencia completa con el teléfono si aplica
+    const referenciaCompleta = esBinance
+      ? `TXN: ${referencia.trim()}`
+      : `REF: ${referencia.trim()} | TEL: ${telefono.trim()}`;
 
     try {
-      await pagosAPI.create(formData);
+      await pagosAPI.create({
+        quiniela: quiniela.id,
+        monto,
+        moneda,
+        referencia: referenciaCompleta,
+      });
       onSuccess();
     } catch (err) {
-      setError('Error al reportar el pago. Verifica los datos.');
+      const errorMsg = err.response?.data 
+        ? JSON.stringify(err.response.data) 
+        : 'Error de conexión con el servidor';
+      setError(`Error al reportar: ${errorMsg}`);
       console.error(err);
     } finally {
       setLoading(false);
@@ -61,9 +82,17 @@ export default function PaymentModal({ quiniela, onClose, onSuccess }) {
 
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text);
-    // Podríamos añadir un toast aquí después
     alert(`${label} copiado: ${text}`);
   };
+
+  const tabStyle = (active) => ({
+    flex: 1, padding: '8px 4px', fontSize: '11px', fontWeight: 700,
+    border: `1px solid ${active ? 'var(--color-accent-gold)' : 'var(--glass-border)'}`,
+    borderRadius: 'var(--radius-md)', cursor: 'pointer',
+    background: active ? 'rgba(255,193,7,0.15)' : 'rgba(255,255,255,0.03)',
+    color: active ? 'var(--color-accent-gold)' : 'var(--text-muted)',
+    transition: 'all 0.2s'
+  });
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -72,126 +101,111 @@ export default function PaymentModal({ quiniela, onClose, onSuccess }) {
         onClick={e => e.stopPropagation()}
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        style={{ maxWidth: 500, width: '90%', padding: 'var(--space-6)', border: '1px solid var(--color-accent-gold)' }}
+        style={{ maxWidth: 500, width: '90%', padding: 'var(--space-6)', border: '1px solid var(--color-accent-gold)', maxHeight: '90vh', overflowY: 'auto' }}
       >
-        <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+        <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
           <h3 style={{ marginBottom: 'var(--space-1)', fontSize: 'var(--text-2xl)' }}>🚀 Activa tu Quiniela</h3>
-          <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>ID: {quiniela.nombre}</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>{quiniela.nombre}</p>
         </div>
 
-        {/* Instrucciones de Pago */}
-        <div style={{ marginBottom: 'var(--space-6)' }}>
-          <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-4)' }}>
-            <button 
-              className={`btn btn-sm ${moneda === 'VES' ? 'btn-gold' : 'btn-ghost'}`}
-              onClick={() => setMoneda('VES')}
-              style={{ flex: 1 }}
-            >
-              🇻🇪 Bolívares (Pago Móvil)
-            </button>
-            <button 
-              className={`btn btn-sm ${moneda === 'USD' ? 'btn-gold' : 'btn-ghost'}`}
-              onClick={() => setMoneda('USD')}
-              style={{ flex: 1 }}
-            >
-              🇺🇸 Dólares (Zelle/Binance)
-            </button>
-          </div>
-
-          <div style={{ 
-            background: 'rgba(255,255,255,0.03)', 
-            padding: 'var(--space-5)', 
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--glass-border)'
-          }}>
-            {moneda === 'VES' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                <div style={{ textAlign: 'center', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--glass-border)' }}>
-                  <p style={{ color: 'var(--color-accent-gold)', fontWeight: 800, fontSize: 'var(--text-lg)', margin: 0 }}>Monto: Bs. 6,000</p>
-                </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'center', margin: 'var(--space-2) 0' }}>
-                  {/* Placeholder para QR */}
-                  <div style={{ 
-                    width: 140, height: 140, background: 'rgba(255,255,255,0.05)', 
-                    border: '2px dashed var(--glass-border)', borderRadius: 'var(--radius-md)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-                    fontSize: '10px', color: 'var(--text-muted)', padding: 'var(--space-4)'
-                  }}>
-                    Espacio para Código QR Banesco
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                  <DataField label="Banco" value="Banesco (0134)" onCopy={() => copyToClipboard('0134', 'Banco')} />
-                  <DataField label="Nombre" value="Robert Granadillo" onCopy={() => copyToClipboard('Robert Granadillo', 'Nombre')} />
-                  <DataField label="Cédula" value="15660834" onCopy={() => copyToClipboard('15660834', 'Cédula')} />
-                  <DataField label="Teléfono" value="04140455347" onCopy={() => copyToClipboard('04140455347', 'Teléfono')} />
-                </div>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                <div style={{ textAlign: 'center', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--glass-border)' }}>
-                  <p style={{ color: 'var(--color-accent-gold)', fontWeight: 800, fontSize: 'var(--text-lg)', margin: 0 }}>Monto: $10.00</p>
-                </div>
-                <div>
-                  <p style={{ fontWeight: 700, fontSize: 'var(--text-sm)', marginBottom: '4px' }}>🇺🇸 Zelle</p>
-                  <DataField value="pagos@tu-zelle-real.com" onCopy={() => copyToClipboard('pagos@tu-zelle-real.com', 'Zelle')} />
-                </div>
-                <div>
-                  <p style={{ fontWeight: 700, fontSize: 'var(--text-sm)', marginBottom: '4px' }}>🔶 Binance Pay (Email/ID)</p>
-                  <DataField value="usuario_binance@email.com" onCopy={() => copyToClipboard('usuario_binance@email.com', 'Binance')} />
-                </div>
-              </div>
-            )}
-          </div>
+        {/* Selector de método */}
+        <div style={{ display: 'flex', gap: '6px', marginBottom: 'var(--space-5)' }}>
+          <button type="button" style={tabStyle(metodo === 'pagomovil')} onClick={() => setMetodo('pagomovil')}>
+            🇻🇪 Pago Móvil
+          </button>
+          <button type="button" style={tabStyle(metodo === 'zelle')} onClick={() => setMetodo('zelle')}>
+            🇺🇸 Zelle
+          </button>
+          <button type="button" style={tabStyle(metodo === 'binance')} onClick={() => setMetodo('binance')}>
+            🔶 Binance
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          {error && <div className="alert alert-danger" style={{ marginBottom: 'var(--space-4)' }}>{error}</div>}
-
-          <div className="form-group" style={{ marginBottom: 'var(--space-4)' }}>
-            <label className="form-label">Moneda de Pago</label>
-            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-              <button 
-                type="button" 
-                className={`btn btn-sm ${moneda === 'VES' ? 'btn-primary' : 'btn-ghost'}`}
-                onClick={() => setMoneda('VES')}
-                style={{ flex: 1 }}
-              >
-                Bolívares (Bs.)
-              </button>
-              <button 
-                type="button" 
-                className={`btn btn-sm ${moneda === 'USD' ? 'btn-primary' : 'btn-ghost'}`}
-                onClick={() => setMoneda('USD')}
-                style={{ flex: 1 }}
-              >
-                Dólares ($)
-              </button>
+        {/* Datos según método */}
+        <div style={{ 
+          background: 'rgba(255,255,255,0.03)', padding: 'var(--space-4)', 
+          borderRadius: 'var(--radius-lg)', border: '1px solid var(--glass-border)',
+          marginBottom: 'var(--space-5)'
+        }}>
+          {metodo === 'pagomovil' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+              <p style={{ color: 'var(--color-accent-gold)', fontWeight: 800, fontSize: 'var(--text-lg)', margin: '0 0 var(--space-3)', textAlign: 'center' }}>
+                Monto: Bs. 6,000
+              </p>
+              <DataField label="Banco" value="Banesco (0134)" onCopy={() => copyToClipboard('0134', 'Banco')} />
+              <DataField label="Nombre" value="Robert Granadillo" onCopy={() => copyToClipboard('Robert Granadillo', 'Nombre')} />
+              <DataField label="Cédula" value="15608346" onCopy={() => copyToClipboard('15608346', 'Cédula')} />
+              <DataField label="Teléfono destino" value="04140455347" onCopy={() => copyToClipboard('04140455347', 'Teléfono')} />
             </div>
-          </div>
+          )}
+          {metodo === 'zelle' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+              <p style={{ color: 'var(--color-accent-gold)', fontWeight: 800, fontSize: 'var(--text-lg)', margin: '0 0 var(--space-3)', textAlign: 'center' }}>
+                Monto: $10.00 USD
+              </p>
+              <DataField label="Zelle — Número de teléfono" value="4482380873" onCopy={() => copyToClipboard('4482380873', 'Zelle')} />
+            </div>
+          )}
+          {metodo === 'binance' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+              <p style={{ color: 'var(--color-accent-gold)', fontWeight: 800, fontSize: 'var(--text-lg)', margin: '0 0 var(--space-3)', textAlign: 'center' }}>
+                Monto: 10 USDT
+              </p>
+              <DataField label="Binance Pay ID" value="82528100" onCopy={() => copyToClipboard('82528100', 'Binance ID')} />
+            </div>
+          )}
+        </div>
 
+        {/* Formulario */}
+        <form onSubmit={handleSubmit}>
+          {error && <div className="alert alert-danger" style={{ marginBottom: 'var(--space-4)', fontSize: 'var(--text-sm)' }}>{error}</div>}
+
+          {/* Referencia / Transacción */}
           <div className="form-group" style={{ marginBottom: 'var(--space-4)' }}>
-            <label className="form-label">Número de Referencia</label>
+            <label className="form-label" style={{ fontWeight: 700 }}>
+              {esBinance ? '🔢 Número de Transacción' : '🔢 Número de Referencia'}
+              <RequiredBadge />
+            </label>
             <input 
               type="text" 
               className="form-input" 
-              placeholder="Últimos 4-6 dígitos o ref completa"
+              placeholder={esBinance ? 'Ej: 123456789 (ID de la transacción Binance)' : 'Ej: 0099123456 (referencia completa)'}
               value={referencia}
               onChange={e => setReferencia(e.target.value)}
               required
             />
           </div>
 
-          <div className="form-group" style={{ marginBottom: 'var(--space-6)' }}>
-            <label className="form-label">Comprobante (Opcional)</label>
-            <input 
-              type="file" 
-              accept="image/*"
-              onChange={e => setComprobante(e.target.files[0])}
-              style={{ fontSize: '12px' }}
-            />
+          {/* Teléfono de origen — solo Pago Móvil y Zelle */}
+          {!esBinance && (
+            <div className="form-group" style={{ marginBottom: 'var(--space-4)' }}>
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                📱 Teléfono desde donde realizaste el pago
+                <RequiredBadge />
+              </label>
+              <input 
+                type="text" 
+                className="form-input" 
+                placeholder={metodo === 'pagomovil' ? 'Ej: 04141234567' : 'Ej: +13051234567'}
+                value={telefono}
+                onChange={e => setTelefono(e.target.value)}
+                required
+              />
+              <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                {metodo === 'pagomovil' 
+                  ? '⚠️ Este dato es necesario para verificar tu pago en el banco.' 
+                  : '⚠️ Número de teléfono asociado a tu cuenta Zelle.'}
+              </p>
+            </div>
+          )}
+
+          {/* Aviso */}
+          <div style={{ 
+            background: 'rgba(255,193,7,0.08)', border: '1px solid rgba(255,193,7,0.3)',
+            borderRadius: 'var(--radius-md)', padding: 'var(--space-3)',
+            marginBottom: 'var(--space-5)', fontSize: '11px', color: 'var(--text-secondary)'
+          }}>
+            ℹ️ El administrador verificará tu pago y activará tu quiniela en menos de 24 horas.
           </div>
 
           <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
@@ -199,7 +213,7 @@ export default function PaymentModal({ quiniela, onClose, onSuccess }) {
               Cancelar
             </button>
             <button type="submit" className="btn btn-gold" style={{ flex: 2 }} disabled={loading}>
-              {loading ? 'Enviando...' : 'Reportar Pago'}
+              {loading ? 'Enviando...' : '✅ Reportar Pago'}
             </button>
           </div>
         </form>

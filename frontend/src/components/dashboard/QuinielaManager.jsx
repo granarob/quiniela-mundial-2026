@@ -109,11 +109,11 @@ export default function QuinielaManager() {
               <div style={{ 
                 fontSize: '9px', padding: '2px 6px', borderRadius: '4px',
                 fontWeight: 700, textTransform: 'uppercase',
-                background: q.estado === 'pagada' ? 'var(--color-success-bg)' : q.estado === 'pendiente' ? 'var(--color-warning-bg)' : 'rgba(255,255,255,0.05)',
-                color: q.estado === 'pagada' ? 'var(--color-success)' : q.estado === 'pendiente' ? 'var(--color-warning)' : 'var(--text-muted)',
-                border: `1px solid ${q.estado === 'pagada' ? 'var(--color-success)' : q.estado === 'pendiente' ? 'var(--color-warning)' : 'var(--glass-border)'}`
+                background: q.estado === 'pagada' ? 'var(--color-success-bg)' : q.estado === 'pendiente' ? 'var(--color-warning-bg)' : q.estado === 'rechazado' ? 'rgba(220,53,69,0.15)' : 'rgba(255,255,255,0.05)',
+                color: q.estado === 'pagada' ? 'var(--color-success)' : q.estado === 'pendiente' ? 'var(--color-warning)' : q.estado === 'rechazado' ? 'var(--color-danger)' : 'var(--text-muted)',
+                border: `1px solid ${q.estado === 'pagada' ? 'var(--color-success)' : q.estado === 'pendiente' ? 'var(--color-warning)' : q.estado === 'rechazado' ? 'var(--color-danger)' : 'var(--glass-border)'}`
               }}>
-                {q.estado === 'borrador' ? 'No participa' : q.estado === 'pendiente' ? 'Pendiente' : 'Activa'}
+                {q.estado === 'borrador' ? 'No participa' : q.estado === 'pendiente' ? 'Verificando...' : q.estado === 'rechazado' ? '❌ Rechazado' : 'Activa'}
               </div>
             </div>
 
@@ -129,7 +129,7 @@ export default function QuinielaManager() {
               </span>
             </div>
 
-            {q.estado === 'borrador' && (
+            {(q.estado === 'borrador' || q.estado === 'rechazado') && (
               <button 
                 className="btn btn-sm btn-gold" 
                 style={{ width: '100%' }}
@@ -138,12 +138,12 @@ export default function QuinielaManager() {
                   setPaymentTarget(q);
                 }}
               >
-                💳 Activar Quiniela
+                {q.estado === 'rechazado' ? '🔄 Volver a Intentar' : '💳 Activar Quiniela'}
               </button>
             )}
             {q.estado === 'pendiente' && (
               <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-warning)', textAlign: 'center', fontStyle: 'italic' }}>
-                Verificando pago...
+                ⏳ Verificando pago...
               </div>
             )}
           </motion.div>
@@ -151,9 +151,46 @@ export default function QuinielaManager() {
       </div>
 
       {quinielas.length === 0 && !loading && (
-        <div style={{ textAlign: 'center', padding: 'var(--space-10)', color: 'var(--text-muted)' }}>
-          Aún no tienes ninguna quiniela. ¡Crea la primera!
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-card" 
+          style={{ 
+            textAlign: 'center', 
+            padding: 'var(--space-12)', 
+            border: '2px dashed var(--color-accent)',
+            background: 'rgba(233, 69, 96, 0.03)'
+          }}
+        >
+          <div style={{ fontSize: '4rem', marginBottom: 'var(--space-6)' }}>🏟️</div>
+          <h3 style={{ marginBottom: 'var(--space-4)' }}>¡Bienvenido al Mundial!</h3>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-8)', maxWidth: '500px', margin: '0 auto var(--space-8)' }}>
+            Para empezar a jugar, necesitas crear tu primera quiniela. 
+            <br />
+            <strong style={{ color: 'var(--color-accent-gold)' }}>¡Ponle un nombre original o jocoso!</strong>
+          </p>
+          
+          <form onSubmit={handleCreate} style={{ 
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-4)',
+            maxWidth: '400px',
+            margin: '0 auto'
+          }}>
+            <input 
+              type="text" 
+              className="form-input" 
+              placeholder="Ej: El Pulpo Paul, Los Troncos, etc."
+              value={newNombre}
+              onChange={e => setNewNombre(e.target.value)}
+              style={{ textAlign: 'center', fontSize: 'var(--text-lg)', padding: 'var(--space-4)' }}
+              required
+            />
+            <button type="submit" className="btn btn-primary btn-lg" disabled={isCreating}>
+              {isCreating ? 'Creando...' : '🚀 Crear mi primera Quiniela'}
+            </button>
+          </form>
+        </motion.div>
       )}
 
       {paymentTarget && (

@@ -201,6 +201,7 @@ class Quiniela(models.Model):
         ('borrador', 'Borrador (No participa)'),
         ('pendiente', 'Pendiente de Validación'),
         ('pagada', 'Pagada (Participando)'),
+        ('rechazado', 'Pago Rechazado'),
     ]
 
     usuario = models.ForeignKey(

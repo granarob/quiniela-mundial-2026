@@ -35,9 +35,7 @@ export const quinielasAPI = {
 };
 
 export const pagosAPI = {
-  create: (formData) => api.post('/pagos/', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }),
+  create: (data) => api.post('/pagos/', data),
 };
 
 export const pronosticosAPI = {
@@ -51,12 +49,15 @@ export const pronosticosAPI = {
 
 export const leaderboardAPI = {
   list: () => api.get('/leaderboard/'),
-  miPosicion: () => api.get('/leaderboard/mi-posicion/'),
+  miPosicion: (quinielaId) => api.get('/leaderboard/mi-posicion/', { params: { quiniela: quinielaId } }),
 };
 
 export const adminAPI = {
   fases: () => api.get('/admin/fases/'),
   usuarios: () => api.get('/auth/admin/users/'),
+  pagos: () => api.get('/admin/pagos/'),
+  aprobarPago: (id) => api.post(`/admin/pagos/${id}/aprobar/`),
+  rechazarPago: (id) => api.post(`/admin/pagos/${id}/rechazar/`),
   activarFase: (slug) => api.post(`/admin/fases/${slug}/activar/`),
   bloquearFase: (slug) => api.post(`/admin/fases/${slug}/bloquear/`),
   desactivarFase: (slug) => api.post(`/admin/fases/${slug}/desactivar/`),

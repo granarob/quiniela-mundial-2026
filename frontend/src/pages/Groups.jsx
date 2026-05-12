@@ -5,6 +5,7 @@ import Layout from '../components/layout/Layout';
 import GroupCard from '../components/groups/GroupCard';
 import { gruposAPI, pronosticosAPI } from '../api/matches';
 import { useAuth } from '../context/AuthContext';
+import { useQuiniela } from '../context/QuinielaContext';
 
 export default function Groups() {
   const navigate = useNavigate();
@@ -13,8 +14,14 @@ export default function Groups() {
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState({});
   const { user } = useAuth();
+  const { quinielas, selectedQuiniela, loading: loadingQuinielas } = useQuiniela();
 
   useEffect(() => {
+    if (!loadingQuinielas && quinielas.length === 0 && user) {
+      navigate('/dashboard');
+      return;
+    }
+
     async function load() {
       try {
         const res = await gruposAPI.list();
@@ -26,16 +33,21 @@ export default function Groups() {
       }
     }
     load();
-  }, []);
+  }, [loadingQuinielas, quinielas, user, navigate]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !selectedQuiniela) {
+      setProgress({});
+      return;
+    }
+    
     Promise.all([
-      pronosticosAPI.listPartidos(),
-      pronosticosAPI.resumen()
+      pronosticosAPI.listPartidos(selectedQuiniela.id),
+      pronosticosAPI.resumen(selectedQuiniela.id)
     ]).then(([partidosRes, resumenRes]) => {
       const map = {};
-      (partidosRes.data.results || partidosRes.data).forEach(p => {
+      const data = partidosRes.data.results || partidosRes.data;
+      data.forEach(p => {
         const letra = p.grupo_letra;
         if (letra) map[letra] = (map[letra] || 0) + 1;
       });
@@ -48,7 +60,7 @@ export default function Groups() {
         }
       }
     }).catch(() => {});
-  }, [user, navigate]);
+  }, [user, navigate, selectedQuiniela]);
 
   const totalCompletados = Object.values(progress).reduce((a, b) => a + b, 0);
   const totalPartidos = grupos.reduce((acc, g) => acc + (g.total_partidos || 6), 0);

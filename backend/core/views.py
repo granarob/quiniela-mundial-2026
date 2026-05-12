@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -147,10 +147,13 @@ class QuinielaViewSet(viewsets.ModelViewSet):
         serializer.save(usuario=self.request.user)
 
 
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+
 class PagoViewSet(viewsets.ModelViewSet):
     """POST /api/pagos/ — Reportar un pago."""
     serializer_class = PagoSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         return Pago.objects.filter(quiniela__usuario=self.request.user)
@@ -178,6 +181,7 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
     """
     serializer_class = PronosticoPartidoSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
         quiniela_id = self.request.query_params.get('quiniela')
@@ -471,5 +475,69 @@ class AdminPartidoViewSet(viewsets.ViewSet):
             return Response({'message': 'Resultado guardado y puntos recalculados.'})
         
         return Response({'error': 'Faltan datos de goles.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminPagoViewSet(viewsets.ViewSet):
+    """Administración de pagos para el Super Admin."""
+    permission_classes = [IsAdminUser]
+
+    def list(self, request):
+        """GET /api/admin/pagos/ — Lista todos los pagos pendientes y completados."""
+        pagos = Pago.objects.select_related('quiniela__usuario').order_by('-fecha_pago')
+        data = []
+        for p in pagos:
+            data.append({
+                'id': p.id,
+                'referencia': p.referencia,
+                'monto': str(p.monto),
+                'moneda': p.moneda,
+                'estado': p.estado,
+                'fecha': p.fecha_pago.strftime('%d/%m/%Y %H:%M'),
+                'quiniela_id': p.quiniela.id,
+                'quiniela_nombre': p.quiniela.nombre,
+                'username': p.quiniela.usuario.username,
+                'comprobante': request.build_absolute_uri(p.comprobante.url) if p.comprobante else None,
+            })
+        return Response(data)
+
+    @action(detail=True, methods=['post'], url_path='aprobar')
+    def aprobar(self, request, pk=None):
+        """POST /api/admin/pagos/{id}/aprobar/ — Aprueba el pago y activa la quiniela."""
+        try:
+            pago = Pago.objects.get(pk=pk)
+        except Pago.DoesNotExist:
+            return Response({'error': 'Pago no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        with transaction.atomic():
+            pago.estado = 'completado'
+            pago.save()
+            
+            quiniela = pago.quiniela
+            quiniela.estado = 'pagada'
+            quiniela.save()
+
+        return Response({
+            'message': f'Pago {pago.referencia} aprobado y quiniela "{quiniela.nombre}" activada.',
+            'pago_id': pago.id,
+            'quiniela_estado': quiniela.estado
+        })
+
+    @action(detail=True, methods=['post'], url_path='rechazar')
+    def rechazar(self, request, pk=None):
+        """POST /api/admin/pagos/{id}/rechazar/ — Rechaza el pago y regresa la quiniela a borrador."""
+        try:
+            pago = Pago.objects.get(pk=pk)
+        except Pago.DoesNotExist:
+            return Response({'error': 'Pago no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        with transaction.atomic():
+            pago.estado = 'rechazado'
+            pago.save()
+            # Regresar la quiniela a borrador para que el usuario pueda volver a pagar
+            quiniela = pago.quiniela
+            quiniela.estado = 'rechazado'
+            quiniela.save()
+
+        return Response({'message': f'Pago rechazado. La quiniela "{quiniela.nombre}" puede volver a intentar el pago.'})
 
 

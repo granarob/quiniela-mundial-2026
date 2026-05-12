@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import (
     Equipo, Grupo, GrupoEquipo, Fase, Partido,
     Jugador, Quiniela, Pago, PronosticoPartido, PronosticoTorneo
@@ -72,15 +73,36 @@ class QuinielaAdmin(admin.ModelAdmin):
 
 @admin.register(Pago)
 class PagoAdmin(admin.ModelAdmin):
-    list_display = ['referencia', 'quiniela', 'monto', 'moneda', 'estado', 'fecha_pago']
-    list_filter = ['estado', 'moneda', 'fecha_pago']
-    search_fields = ['referencia', 'quiniela__nombre', 'quiniela__usuario__username']
-    actions = ['aprobar_pago', 'rechazar_pago']
+    list_display = ('referencia', 'quiniela_nombre', 'monto_display', 'estado', 'ver_comprobante', 'fecha_pago')
+    list_filter = ('estado', 'moneda', 'fecha_pago')
+    search_fields = ('referencia', 'quiniela__nombre', 'quiniela__usuario__username')
+    readonly_fields = ('ver_comprobante_detalle',)
+    actions = ['aprobar_pagos']
 
-    def aprobar_pago(self, request, queryset):
+    def quiniela_nombre(self, obj):
+        return obj.quiniela.nombre
+    quiniela_nombre.short_description = 'Quiniela'
+
+    def monto_display(self, obj):
+        return f"{obj.monto} {obj.moneda}"
+    monto_display.short_description = 'Monto'
+
+    def ver_comprobante(self, obj):
+        if obj.comprobante:
+            return format_html('<img src="{}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />', obj.comprobante.url)
+        return "Sin foto"
+    ver_comprobante.short_description = 'Vista Previa'
+
+    def ver_comprobante_detalle(self, obj):
+        if obj.comprobante:
+            return format_html('<a href="{0}" target="_blank"><img src="{0}" style="max-width: 400px; border: 1px solid #ccc;" /></a>', obj.comprobante.url)
+        return "No hay comprobante adjunto"
+    ver_comprobante_detalle.short_description = 'Comprobante Completo'
+
+    @admin.action(description='Aprobar pagos seleccionados y Activar Quinielas')
+    def aprobar_pagos(self, request, queryset):
+        count = 0
         for pago in queryset:
-            pago.estado = 'completado'
-            pago.save()
             # Activar la quiniela asociada
             quiniela = pago.quiniela
             quiniela.estado = 'pagada'

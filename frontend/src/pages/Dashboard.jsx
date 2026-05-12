@@ -26,7 +26,7 @@ export default function Dashboard() {
       try {
         const [resRes, posRes, fasesRes] = await Promise.all([
           pronosticosAPI.resumen(selectedQuiniela.id),
-          leaderboardAPI.miPosicion(),
+          leaderboardAPI.miPosicion(selectedQuiniela.id),
           fasesAPI.list(),
         ]);
         const resumenData = resRes.data;
@@ -131,53 +131,55 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
-          {/* Quick Actions */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-6)' }}>
-            <Link to="/grupos" style={{ textDecoration: 'none' }}>
-              <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>⚽</div>
-                <h5 style={{ marginBottom: 'var(--space-2)' }}>Hacer pronósticos</h5>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Completa tus picks para los 12 grupos</p>
-              </div>
-            </Link>
-            <Link to="/eliminatorias" style={{ textDecoration: 'none' }}>
-              <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>🏟️</div>
-                <h5 style={{ marginBottom: 'var(--space-2)' }}>Eliminatorias</h5>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Predice los cruces eliminatorios</p>
-              </div>
-            </Link>
-            <Link to="/leaderboard" style={{ textDecoration: 'none' }}>
-              <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>🏆</div>
-                <h5 style={{ marginBottom: 'var(--space-2)' }}>Ver Ranking</h5>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>¿Cómo vas contra los demás?</p>
-              </div>
-            </Link>
-            <Link to="/predicciones" style={{ textDecoration: 'none' }}>
-              <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>🌟</div>
-                <h5 style={{ marginBottom: 'var(--space-2)' }}>Predicciones Especiales</h5>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Campeón, Goleador y más bonos</p>
-              </div>
-            </Link>
-            <Link to="/perfil" style={{ textDecoration: 'none' }}>
-              <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>👤</div>
-                <h5 style={{ marginBottom: 'var(--space-2)' }}>Mi Perfil</h5>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Actualiza tu avatar y datos</p>
-              </div>
-            </Link>
-            {user?.is_admin && (
-              <Link to="/admin-panel" style={{ textDecoration: 'none' }}>
-                <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center', borderColor: 'var(--color-accent)' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>🔧</div>
-                  <h5 style={{ marginBottom: 'var(--space-2)', color: 'var(--color-accent)' }}>Panel Admin</h5>
-                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Configurar el torneo</p>
+          {/* Quick Actions - Only show if they have a quiniela */}
+          {selectedQuiniela && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-6)' }}>
+              <Link to="/grupos" style={{ textDecoration: 'none' }}>
+                <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>⚽</div>
+                  <h5 style={{ marginBottom: 'var(--space-2)' }}>Hacer pronósticos</h5>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Completa tus picks para los 12 grupos</p>
                 </div>
               </Link>
-            )}
-          </div>
+              <Link to="/eliminatorias" style={{ textDecoration: 'none' }}>
+                <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>🏟️</div>
+                  <h5 style={{ marginBottom: 'var(--space-2)' }}>Eliminatorias</h5>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Predice los cruces eliminatorios</p>
+                </div>
+              </Link>
+              <Link to="/leaderboard" style={{ textDecoration: 'none' }}>
+                <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>🏆</div>
+                  <h5 style={{ marginBottom: 'var(--space-2)' }}>Ver Ranking</h5>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>¿Cómo vas contra los demás?</p>
+                </div>
+              </Link>
+              <Link to="/predicciones" style={{ textDecoration: 'none' }}>
+                <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>🌟</div>
+                  <h5 style={{ marginBottom: 'var(--space-2)' }}>Predicciones Especiales</h5>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Campeón, Goleador y más bonos</p>
+                </div>
+              </Link>
+              <Link to="/perfil" style={{ textDecoration: 'none' }}>
+                <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>👤</div>
+                  <h5 style={{ marginBottom: 'var(--space-2)' }}>Mi Perfil</h5>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Actualiza tu avatar y datos</p>
+                </div>
+              </Link>
+              {user?.is_admin && (
+                <Link to="/admin-panel" style={{ textDecoration: 'none' }}>
+                  <div className="glass-card glass-card-interactive" style={{ padding: 'var(--space-6)', textAlign: 'center', borderColor: 'var(--color-accent)' }}>
+                    <div style={{ fontSize: '2rem', marginBottom: 'var(--space-4)' }}>🔧</div>
+                    <h5 style={{ marginBottom: 'var(--space-2)', color: 'var(--color-accent)' }}>Panel Admin</h5>
+                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Configurar el torneo</p>
+                  </div>
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </section>
     </Layout>
