@@ -51,13 +51,15 @@ export default function GroupDetail() {
     load();
   }, [letra]);
 
-  // Agrupar partidos por jornada
-  const porJornada = partidos.reduce((acc, p) => {
-    const j = p.jornada || 1;
-    if (!acc[j]) acc[j] = [];
-    acc[j].push(p);
-    return acc;
-  }, {});
+  // Ordenar y agrupar partidos por jornada
+  const porJornada = [...partidos]
+    .sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora))
+    .reduce((acc, p) => {
+      const j = p.jornada || 1;
+      if (!acc[j]) acc[j] = [];
+      acc[j].push(p);
+      return acc;
+    }, {});
 
   const isLocked = faseGrupos ? !faseGrupos.esta_abierta : false;
 

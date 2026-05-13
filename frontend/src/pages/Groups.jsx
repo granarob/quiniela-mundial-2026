@@ -25,7 +25,8 @@ export default function Groups() {
     async function load() {
       try {
         const res = await gruposAPI.list();
-        setGrupos(res.data.results || res.data);
+        const sortedGroups = (res.data.results || res.data).sort((a, b) => a.letra.localeCompare(b.letra));
+        setGrupos(sortedGroups);
       } catch (e) {
         setError('No se pudieron cargar los grupos.');
       } finally {
