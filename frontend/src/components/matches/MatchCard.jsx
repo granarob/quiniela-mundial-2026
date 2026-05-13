@@ -66,9 +66,13 @@ const MatchCard = memo(function MatchCard({
       {/* Header: fecha y estado */}
       <div className="match-card-header">
         <span className="match-date">
-          {new Date(fecha_hora).toLocaleString('es-MX', {
-            weekday: 'short', month: 'short', day: 'numeric',
-            hour: '2-digit', minute: '2-digit',
+          {new Date(fecha_hora).toLocaleString(undefined, {
+            weekday: 'short', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true
           })}
         </span>
         {hasResult && (
