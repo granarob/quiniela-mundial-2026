@@ -130,6 +130,11 @@ export default function Admin() {
         scores.estado
       );
       showMessage(response.data.message || 'Resultado guardado y puntos recalculados exitosamente.');
+      setEditingIds(prev => {
+        const next = new Set(prev);
+        next.delete(partidoId);
+        return next;
+      });
       const partidosRes = await partidosAPI.list({ limit: 100 });
       setPartidos(partidosRes.data.results || partidosRes.data);
     } catch (e) {
@@ -154,6 +159,8 @@ export default function Admin() {
     }
   }
 
+  const [editingIds, setEditingIds] = useState(new Set());
+
   function handleScoreChange(partidoId, field, value) {
     setEditScores(prev => ({
       ...prev,
@@ -162,6 +169,15 @@ export default function Admin() {
         [field]: value
       }
     }));
+  }
+
+  function toggleEdit(partidoId) {
+    setEditingIds(prev => {
+      const next = new Set(prev);
+      if (next.has(partidoId)) next.delete(partidoId);
+      else next.add(partidoId);
+      return next;
+    });
   }
 
   if (loading) {
@@ -383,34 +399,71 @@ export default function Admin() {
                           const pId = p.id;
                           const scores = editScores[pId] || { goles_local: '', goles_visitante: '', estado: 'programado' };
                           const isSaved = p.resultado_cargado;
+                          const isEditing = editingIds.has(pId);
+                          const isDisabled = isSaved && !isEditing;
+
                           return (
-                            <tr key={pId} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: isSaved ? 'rgba(46,204,113,0.03)' : 'transparent' }}>
+                            <tr key={pId} style={{ 
+                              borderBottom: '1px solid rgba(255,255,255,0.05)', 
+                              background: isSaved ? 'rgba(46,204,113,0.03)' : 'transparent',
+                              opacity: isDisabled ? 0.8 : 1
+                            }}>
                               <td style={{ padding: 'var(--space-3)', fontSize: 'var(--text-xs)' }}>
                                 <div style={{ fontWeight: 700 }}>{p.equipo_local?.nombre_corto} vs {p.equipo_visitante?.nombre_corto}</div>
                                 <div style={{ color: 'var(--text-muted)' }}>Jornada {p.jornada} | {p.fase_nombre}</div>
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <input type="number" className="form-input" style={{ width: 55, padding: '6px', textAlign: 'center' }} value={scores.goles_local} onChange={(e) => handleScoreChange(pId, 'goles_local', e.target.value)} />
+                                <input 
+                                  type="number" 
+                                  className="form-input" 
+                                  style={{ width: 55, padding: '6px', textAlign: 'center', opacity: isDisabled ? 0.6 : 1 }} 
+                                  value={scores.goles_local} 
+                                  onChange={(e) => handleScoreChange(pId, 'goles_local', e.target.value)} 
+                                  disabled={isDisabled}
+                                />
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <input type="number" className="form-input" style={{ width: 55, padding: '6px', textAlign: 'center' }} value={scores.goles_visitante} onChange={(e) => handleScoreChange(pId, 'goles_visitante', e.target.value)} />
+                                <input 
+                                  type="number" 
+                                  className="form-input" 
+                                  style={{ width: 55, padding: '6px', textAlign: 'center', opacity: isDisabled ? 0.6 : 1 }} 
+                                  value={scores.goles_visitante} 
+                                  onChange={(e) => handleScoreChange(pId, 'goles_visitante', e.target.value)} 
+                                  disabled={isDisabled}
+                                />
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <select className="form-input" style={{ padding: '6px', fontSize: '11px' }} value={scores.estado} onChange={(e) => handleScoreChange(pId, 'estado', e.target.value)}>
+                                <select 
+                                  className="form-input" 
+                                  style={{ padding: '6px', fontSize: '11px', opacity: isDisabled ? 0.6 : 1 }} 
+                                  value={scores.estado} 
+                                  onChange={(e) => handleScoreChange(pId, 'estado', e.target.value)}
+                                  disabled={isDisabled}
+                                >
                                   <option value="programado">Pendiente</option>
                                   <option value="en_curso">En Vivo</option>
                                   <option value="finalizado">Finalizado</option>
                                 </select>
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <button 
-                                  className={`btn ${isSaved ? 'btn-ghost' : 'btn-gold'}`} 
-                                  style={{ padding: '6px 12px', fontSize: '11px', fontWeight: 800, minWidth: '85px' }} 
-                                  onClick={() => handleSaveResultado(pId)} 
-                                  disabled={saving}
-                                >
-                                  {saving ? '...' : isSaved ? '✓ EDITAR' : '💾 GUARDAR'}
-                                </button>
+                                {isDisabled ? (
+                                  <button 
+                                    className="btn btn-ghost" 
+                                    style={{ padding: '6px 12px', fontSize: '10px', fontWeight: 700, minWidth: '85px', border: '1px solid var(--text-muted)' }} 
+                                    onClick={() => toggleEdit(pId)}
+                                  >
+                                    ✏️ MODIFICAR
+                                  </button>
+                                ) : (
+                                  <button 
+                                    className="btn btn-gold" 
+                                    style={{ padding: '6px 12px', fontSize: '11px', fontWeight: 800, minWidth: '85px', color: '#000' }} 
+                                    onClick={() => handleSaveResultado(pId)} 
+                                    disabled={saving}
+                                  >
+                                    {saving ? '...' : '💾 GUARDAR'}
+                                  </button>
+                                )}
                               </td>
                             </tr>
                           );
