@@ -296,10 +296,15 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
                             continue
                         obj.goles_local_pred = item['goles_local_pred']
                         obj.goles_visitante_pred = item['goles_visitante_pred']
+                        # Usamos update_fields para ser más específicos
                         obj.save(update_fields=['goles_local_pred', 'goles_visitante_pred', 'updated_at'])
                     resultados.append(obj.id)
                 except Exception:
                     continue
+
+            # ACTUALIZACIÓN ÚNICA AL FINAL
+            from .signals import actualizar_puntos_quiniela
+            actualizar_puntos_quiniela(quiniela_id)
 
         return Response({'guardados': len(resultados), 'ids': resultados})
 

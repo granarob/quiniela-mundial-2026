@@ -58,9 +58,9 @@ def actualizar_puntos_quiniela(quiniela_id):
         
         # 4. También actualizar el perfil del usuario (compatibilidad)
         from users.models import PerfilUsuario
+        from django.db.models import Max
         perfil, _ = PerfilUsuario.objects.get_or_create(usuario=quiniela.usuario)
-        # El perfil muestra el máximo puntaje de sus quinielas
-        max_puntos = Quiniela.objects.filter(usuario=quiniela.usuario).aggregate(max_p=Sum('puntos_totales'))['max_p'] or 0
+        max_puntos = Quiniela.objects.filter(usuario=quiniela.usuario).aggregate(max_p=Max('puntos_totales'))['max_p'] or 0
         perfil.puntos_totales = max_puntos
         perfil.save(update_fields=['puntos_totales'])
         

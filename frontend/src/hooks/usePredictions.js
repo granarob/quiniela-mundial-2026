@@ -3,22 +3,27 @@ import { pronosticosAPI } from '../api/matches';
 import { useQuiniela } from '../context/QuinielaContext';
 
 /**
- * Hook para gestionar pronósticos con auto-save debounce.
+ * Hook optimizado para gestionar pronósticos con auto-save global.
  * @param {Array} partidos — lista de partidos del grupo/fase
- * @returns {{ predictions, setPrediction, saveStatus, saveAll, isSaving }}
+ * @returns {{ predictions, setPrediction, saveStatus, saveAll, isSaving, completados, total }}
  */
 export default function usePredictions(partidos = []) {
   const { selectedQuiniela } = useQuiniela();
   const quinielaId = selectedQuiniela?.id;
 
-  // { [partidoId]: { goles_local_pred, goles_visitante_pred, saved, dirty } }
   const [predictions, setPredictions] = useState({});
   const [saveStatus, setSaveStatus] = useState('idle'); // idle | saving | saved | error
   const [isSaving, setIsSaving] = useState(false);
-  const debounceTimers = useRef({});
+  
+  const globalTimer = useRef(null);
   const mountedRef = useRef(true);
+  
+  // Referencia actualizada para que saveAll siempre vea los últimos datos sin recrearse
+  const predictionsRef = useRef({});
+  useEffect(() => {
+    predictionsRef.current = predictions;
+  }, [predictions]);
 
-  // Cargar pronósticos existentes al montar o cambiar de quiniela/partidos
   useEffect(() => {
     mountedRef.current = true;
     if (quinielaId) {
@@ -28,8 +33,7 @@ export default function usePredictions(partidos = []) {
     }
     return () => {
       mountedRef.current = false;
-      // Limpiar timers
-      Object.values(debounceTimers.current).forEach(clearTimeout);
+      if (globalTimer.current) clearTimeout(globalTimer.current);
     };
   }, [partidos, quinielaId]);
 
@@ -50,16 +54,61 @@ export default function usePredictions(partidos = []) {
       });
       if (mountedRef.current) setPredictions(map);
     } catch {
-      // Si no está autenticado, no cargar nada
+      // Error silencioso (ej. no autenticado)
     }
   }
 
-  // Actualizar un pronóstico (llama auto-save con debounce de 2s)
+  // Guardar todos los cambios pendientes (bulk)
+  const saveAll = useCallback(async () => {
+    const currentPredictions = predictionsRef.current;
+    const dirtyList = Object.entries(currentPredictions)
+      .filter(([, p]) => p.dirty && p.goles_local_pred !== '' && p.goles_visitante_pred !== '')
+      .map(([partidoId, p]) => ({
+        partido: parseInt(partidoId),
+        goles_local_pred: p.goles_local_pred,
+        goles_visitante_pred: p.goles_visitante_pred,
+      }));
+
+    if (dirtyList.length === 0 || !quinielaId) return;
+
+    if (mountedRef.current) {
+      setSaveStatus('saving');
+      setIsSaving(true);
+    }
+
+    try {
+      await pronosticosAPI.bulkSave(quinielaId, dirtyList);
+      if (mountedRef.current) {
+        setPredictions(prev => {
+          const next = { ...prev };
+          dirtyList.forEach(({ partido }) => {
+            if (next[partido]) {
+              next[partido] = { ...next[partido], saved: true, dirty: false };
+            }
+          });
+          return next;
+        });
+        setSaveStatus('saved');
+        setTimeout(() => {
+          if (mountedRef.current) setSaveStatus('idle');
+        }, 2000);
+      }
+    } catch (err) {
+      if (mountedRef.current) setSaveStatus('error');
+    } finally {
+      if (mountedRef.current) setIsSaving(false);
+    }
+  }, [quinielaId]);
+
+  // Actualizar un pronóstico con debounce GLOBAL
   const setPrediction = useCallback((partidoId, field, value) => {
     const numVal = value === '' ? '' : Math.max(0, Math.min(99, parseInt(value) || 0));
 
     setPredictions(prev => {
       const current = prev[partidoId] || { goles_local_pred: '', goles_visitante_pred: '', saved: false, dirty: false };
+      // Solo marcar como dirty si el valor realmente cambió
+      if (current[field] === numVal) return prev;
+
       return {
         ...prev,
         [partidoId]: {
@@ -71,89 +120,14 @@ export default function usePredictions(partidos = []) {
       };
     });
 
-    // Auto-save con debounce
-    if (debounceTimers.current[partidoId]) {
-      clearTimeout(debounceTimers.current[partidoId]);
-    }
+    // Reiniciar el temporizador global de auto-guardado
+    if (globalTimer.current) clearTimeout(globalTimer.current);
+    globalTimer.current = setTimeout(() => {
+      saveAll();
+    }, 1500); // 1.5 segundos de inactividad para guardar todo
+  }, [saveAll]);
 
-    debounceTimers.current[partidoId] = setTimeout(() => {
-      autoSaveSingle(partidoId);
-    }, 2000);
-  }, []);
-
-  // Guardar un solo pronóstico
-  async function autoSaveSingle(partidoId) {
-    setPredictions(prev => {
-      const p = prev[partidoId];
-      if (!p || p.goles_local_pred === '' || p.goles_visitante_pred === '') return prev;
-
-      // Disparar el save
-      setSaveStatus('saving');
-      setIsSaving(true);
-
-      pronosticosAPI.savePartido(quinielaId, {
-        partido: partidoId,
-        goles_local_pred: p.goles_local_pred,
-        goles_visitante_pred: p.goles_visitante_pred,
-      }).then(() => {
-        if (mountedRef.current) {
-          setPredictions(pp => ({
-            ...pp,
-            [partidoId]: { ...pp[partidoId], saved: true, dirty: false },
-          }));
-          setSaveStatus('saved');
-          setTimeout(() => {
-            if (mountedRef.current) setSaveStatus('idle');
-          }, 2000);
-        }
-      }).catch(() => {
-        if (mountedRef.current) setSaveStatus('error');
-      }).finally(() => {
-        if (mountedRef.current) setIsSaving(false);
-      });
-
-      return prev;
-    });
-  }
-
-  // Guardar todos los pronósticos pendientes (dirty) de una vez
-  const saveAll = useCallback(async () => {
-    const dirtyList = Object.entries(predictions)
-      .filter(([, p]) => p.dirty && p.goles_local_pred !== '' && p.goles_visitante_pred !== '')
-      .map(([partidoId, p]) => ({
-        partido: parseInt(partidoId),
-        goles_local_pred: p.goles_local_pred,
-        goles_visitante_pred: p.goles_visitante_pred,
-      }));
-
-    if (dirtyList.length === 0) return;
-
-    setSaveStatus('saving');
-    setIsSaving(true);
-
-    try {
-      await pronosticosAPI.bulkSave(quinielaId, dirtyList);
-      setPredictions(prev => {
-        const next = { ...prev };
-        dirtyList.forEach(({ partido }) => {
-          if (next[partido]) {
-            next[partido] = { ...next[partido], saved: true, dirty: false };
-          }
-        });
-        return next;
-      });
-      setSaveStatus('saved');
-      setTimeout(() => {
-        if (mountedRef.current) setSaveStatus('idle');
-      }, 2000);
-    } catch {
-      setSaveStatus('error');
-    } finally {
-      setIsSaving(false);
-    }
-  }, [predictions]);
-
-  // Contadores
+  // Contadores para UI
   const partidoIds = partidos.map(p => p.id);
   const completados = partidoIds.filter(id => {
     const p = predictions[id];

@@ -17,8 +17,8 @@ def calcular_puntos_partido(pronostico, partido):
       - Tendencia correcta: 4 pts
       - Error: 0 pts
     """
-    pred_l = pronostico.goles_local_pred
-    pred_v = pronostico.goles_visitante_pred
+    pred_l = pronostico.goles_local_pred or 0
+    pred_v = pronostico.goles_visitante_pred or 0
     real_l = partido.goles_local
     real_v = partido.goles_visitante
 
