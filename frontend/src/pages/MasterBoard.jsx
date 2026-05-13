@@ -59,11 +59,11 @@ export default function MasterBoard() {
                       <th key={p.id} style={{ padding: '12px', textAlign: 'center', minWidth: '100px', borderLeft: '1px solid var(--glass-border)' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                           <div style={{ display: 'flex', gap: '4px' }}>
-                            <img src={p.equipo_local.bandera_url} alt="L" style={{ width: '16px', height: '10px' }} />
+                            <img src={p.equipo_local?.bandera_url || ''} alt="L" style={{ width: '16px', height: '10px' }} />
                             <span style={{ fontSize: '10px' }}>vs</span>
-                            <img src={p.equipo_visitante.bandera_url} alt="V" style={{ width: '16px', height: '10px' }} />
+                            <img src={p.equipo_visitante?.bandera_url || ''} alt="V" style={{ width: '16px', height: '10px' }} />
                           </div>
-                          <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>{p.equipo_local.nombre_corto} - {p.equipo_visitante.nombre_corto}</span>
+                          <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>{p.equipo_local?.nombre_corto || 'TBD'} - {p.equipo_visitante?.nombre_corto || 'TBD'}</span>
                           {p.resultado_cargado && (
                             <div style={{ background: 'var(--color-gold)', color: '#000', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
                               {p.goles_local}-{p.goles_visitante}
