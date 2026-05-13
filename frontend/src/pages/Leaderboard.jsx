@@ -88,8 +88,9 @@ export default function Leaderboard() {
                   Aún no hay quinielas activas participando.
                 </div>
               ) : ranking.map((item, i) => (
-                <motion.div
+                <Link
                   key={item.quiniela_id}
+                  to={`/jugador/${item.quiniela_id}`}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -97,11 +98,11 @@ export default function Leaderboard() {
                     padding: 'var(--space-4) var(--space-6)',
                     borderBottom: '1px solid var(--glass-border)',
                     background: selectedQuiniela?.id === item.quiniela_id ? 'rgba(233,69,96,0.08)' : 'transparent',
-                    transition: 'background 0.15s',
+                    transition: 'all 0.2s',
+                    textDecoration: 'none',
+                    cursor: 'pointer'
                   }}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04 }}
+                  className="leaderboard-row"
                 >
                   <span style={{
                     minWidth: 36,
@@ -120,10 +121,13 @@ export default function Leaderboard() {
                       by @{item.username} {selectedQuiniela?.id === item.quiniela_id && ' (Tú)'}
                     </div>
                   </div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'var(--text-lg)', color: 'var(--color-accent-gold)' }}>
-                    {item.puntos} <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 400 }}>pts</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'var(--text-lg)', color: 'var(--color-accent-gold)' }}>
+                      {item.puntos} <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontWeight: 400 }}>pts</span>
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'var(--color-accent)', fontWeight: 600 }}>VER PICKS →</div>
                   </div>
-                </motion.div>
+                </Link>
               ))}
             </div>
           )}

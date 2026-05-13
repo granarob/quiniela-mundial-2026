@@ -147,7 +147,11 @@ class QuinielaViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Quiniela.objects.filter(usuario=self.request.user)
+        # El usuario puede ver sus propias quinielas
+        # O cualquier quiniela que ya esté en estado 'pagada'
+        return Quiniela.objects.filter(
+            Q(usuario=self.request.user) | Q(estado='pagada')
+        ).distinct()
 
     def perform_create(self, serializer):
         serializer.save(usuario=self.request.user)
@@ -193,10 +197,14 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
         quiniela_id = self.request.query_params.get('quiniela')
         if not quiniela_id:
             return PronosticoPartido.objects.none()
+            
+        # Permitir ver si:
+        # 1. Es mi propia quiniela
+        # 2. Es una quiniela PAGADA (pública para otros)
         return PronosticoPartido.objects.filter(
-            quiniela_id=quiniela_id,
-            quiniela__usuario=self.request.user
-        ).select_related('partido__equipo_local', 'partido__equipo_visitante')
+            Q(quiniela_id=quiniela_id, quiniela__usuario=self.request.user) |
+            Q(quiniela_id=quiniela_id, quiniela__estado='pagada')
+        ).distinct().select_related('partido__equipo_local', 'partido__equipo_visitante')
 
     def create(self, request, *args, **kwargs):
         """Crear o actualizar (upsert) un pronóstico en una quiniela específica."""

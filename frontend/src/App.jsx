@@ -23,6 +23,7 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Rules = lazy(() => import('./pages/Rules'));
+const UserDetail = lazy(() => import('./pages/UserDetail'));
 
 function LoadingFallback() {
   return (
@@ -64,6 +65,9 @@ export default function App() {
               } />
               <Route path="/admin-panel" element={
                 <ProtectedRoute><Admin /></ProtectedRoute>
+              } />
+              <Route path="/jugador/:id" element={
+                <ProtectedRoute><UserDetail /></ProtectedRoute>
               } />
               {/* 404 */}
               <Route path="*" element={
