@@ -2,7 +2,7 @@ import os, django, sys
 
 def run_health_check():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-    os.environ['DATABASE_URL'] = 'postgresql://postgres.nphntxzxnweqtzjbxipl:Alemania24.rob@aws-1-us-west-1.pooler.supabase.com:5432/postgres'
+    # Eliminadas credenciales por seguridad. Se cargan desde el entorno.
     try:
         django.setup()
     except Exception as e:
