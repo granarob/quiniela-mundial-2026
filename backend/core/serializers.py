@@ -57,7 +57,7 @@ class PartidoListSerializer(serializers.ModelSerializer):
     equipo_local = EquipoSerializer(read_only=True)
     equipo_visitante = EquipoSerializer(read_only=True)
     fase_nombre = serializers.CharField(source='fase.nombre', read_only=True)
-    grupo_letra = serializers.CharField(source='grupo.letra', read_only=True)
+    grupo_letra = serializers.SerializerMethodField()
     resultado_display = serializers.ReadOnlyField()
 
     class Meta:
@@ -69,6 +69,9 @@ class PartidoListSerializer(serializers.ModelSerializer):
             'goles_local', 'goles_visitante',
             'estado', 'resultado_cargado', 'resultado_display'
         ]
+
+    def get_grupo_letra(self, obj):
+        return obj.grupo.letra if obj.grupo else None
 
 
 class PartidoDetailSerializer(PartidoListSerializer):
