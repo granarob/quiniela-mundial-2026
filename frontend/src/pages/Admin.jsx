@@ -381,7 +381,7 @@ export default function Admin() {
                       <tbody>
                         {partidos.map(p => {
                           const pId = p.id;
-                          if (!pId || !editScores[pId]) return null;
+                          const scores = editScores[pId] || { goles_local: '', goles_visitante: '', estado: 'programado' };
                           const isSaved = p.resultado_cargado;
                           return (
                             <tr key={pId} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: isSaved ? 'rgba(46,204,113,0.03)' : 'transparent' }}>
@@ -390,13 +390,13 @@ export default function Admin() {
                                 <div style={{ color: 'var(--text-muted)' }}>Jornada {p.jornada} | {p.fase_nombre}</div>
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <input type="number" className="form-input" style={{ width: 55, padding: '6px', textAlign: 'center' }} value={editScores[pId].goles_local} onChange={(e) => handleScoreChange(pId, 'goles_local', e.target.value)} />
+                                <input type="number" className="form-input" style={{ width: 55, padding: '6px', textAlign: 'center' }} value={scores.goles_local} onChange={(e) => handleScoreChange(pId, 'goles_local', e.target.value)} />
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <input type="number" className="form-input" style={{ width: 55, padding: '6px', textAlign: 'center' }} value={editScores[pId].goles_visitante} onChange={(e) => handleScoreChange(pId, 'goles_visitante', e.target.value)} />
+                                <input type="number" className="form-input" style={{ width: 55, padding: '6px', textAlign: 'center' }} value={scores.goles_visitante} onChange={(e) => handleScoreChange(pId, 'goles_visitante', e.target.value)} />
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <select className="form-input" style={{ padding: '6px', fontSize: '11px' }} value={editScores[pId].estado} onChange={(e) => handleScoreChange(pId, 'estado', e.target.value)}>
+                                <select className="form-input" style={{ padding: '6px', fontSize: '11px' }} value={scores.estado} onChange={(e) => handleScoreChange(pId, 'estado', e.target.value)}>
                                   <option value="programado">Pendiente</option>
                                   <option value="en_curso">En Vivo</option>
                                   <option value="finalizado">Finalizado</option>
