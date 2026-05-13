@@ -537,8 +537,14 @@ class AdminPartidoViewSet(viewsets.ViewSet):
                 return Response({'error': 'Faltan los goles.'}, status=status.HTTP_400_BAD_REQUEST)
         except (ValueError, TypeError):
             return Response({'error': 'Los goles deben ser números válidos.'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    @action(detail=False, methods=['post'], url_path='recalcular-puntos')
+    def recalcular_puntos(self, request):
+        """POST /api/admin/partidos/recalcular-puntos/ — Fuerza el recálculo de todo."""
+        from django.db import transaction
+        quinielas = Quiniela.objects.all()
+        for q in quinielas:
+            q.actualizar_puntos() # Este metodo ya existe en el modelo Quiniela
+        return Response({'message': 'Todos los puntos han sido recalculados exitosamente.'})
 
 
 class AdminPagoViewSet(viewsets.ViewSet):

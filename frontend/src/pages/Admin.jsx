@@ -140,6 +140,20 @@ export default function Admin() {
     }
   }
 
+  async function handleRecalcularPuntos() {
+    if (!window.confirm('¿Quieres recalcular los puntos de todos los usuarios basándote en los resultados actuales?')) return;
+    setSaving(true);
+    try {
+      const res = await adminAPI.recalcularPuntos();
+      showMessage(res.data.message);
+      await loadData();
+    } catch (e) {
+      showMessage('Error al recalcular puntos', 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function handleScoreChange(partidoId, field, value) {
     setEditScores(prev => ({
       ...prev,
@@ -342,7 +356,17 @@ export default function Admin() {
               {/* TAB: RESULTADOS */}
               {activeTab === 'resultados' && (
                 <div className="glass-card">
-                  <h3 style={{ marginBottom: 'var(--space-6)' }}>⚽ Cargar Resultados Reales</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
+                    <h3 style={{ margin: 0 }}>⚽ Cargar Resultados Reales</h3>
+                    <button 
+                      className="btn btn-sm btn-ghost" 
+                      style={{ borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }} 
+                      onClick={handleRecalcularPuntos} 
+                      disabled={saving}
+                    >
+                      🔄 Recalcular Puntos
+                    </button>
+                  </div>
                   <div className="table-responsive">
                     <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
                       <thead>
@@ -356,30 +380,36 @@ export default function Admin() {
                       </thead>
                       <tbody>
                         {partidos.map(p => {
-                          const pId = p.partido || p.id;
+                          const pId = p.id;
                           if (!pId || !editScores[pId]) return null;
+                          const isSaved = p.resultado_cargado;
                           return (
-                            <tr key={pId} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            <tr key={pId} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: isSaved ? 'rgba(46,204,113,0.03)' : 'transparent' }}>
                               <td style={{ padding: 'var(--space-3)', fontSize: 'var(--text-xs)' }}>
-                                <strong>{p.partido_display || `${p.equipo_local?.nombre} vs ${p.equipo_visitante?.nombre}`}</strong>
-                                <div>{p.fase_slug}</div>
+                                <div style={{ fontWeight: 700 }}>{p.equipo_local?.nombre_corto} vs {p.equipo_visitante?.nombre_corto}</div>
+                                <div style={{ color: 'var(--text-muted)' }}>Jornada {p.jornada} | {p.fase_nombre}</div>
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <input type="number" className="form-input" style={{ width: 50, padding: '4px' }} value={editScores[pId].goles_local} onChange={(e) => handleScoreChange(pId, 'goles_local', e.target.value)} />
+                                <input type="number" className="form-input" style={{ width: 55, padding: '6px', textAlign: 'center' }} value={editScores[pId].goles_local} onChange={(e) => handleScoreChange(pId, 'goles_local', e.target.value)} />
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <input type="number" className="form-input" style={{ width: 50, padding: '4px' }} value={editScores[pId].goles_visitante} onChange={(e) => handleScoreChange(pId, 'goles_visitante', e.target.value)} />
+                                <input type="number" className="form-input" style={{ width: 55, padding: '6px', textAlign: 'center' }} value={editScores[pId].goles_visitante} onChange={(e) => handleScoreChange(pId, 'goles_visitante', e.target.value)} />
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <select className="form-input" style={{ padding: '4px', fontSize: '10px' }} value={editScores[pId].estado} onChange={(e) => handleScoreChange(pId, 'estado', e.target.value)}>
-                                  <option value="programado">Prog.</option>
-                                  <option value="en_curso">Curso</option>
-                                  <option value="finalizado">Final</option>
+                                <select className="form-input" style={{ padding: '6px', fontSize: '11px' }} value={editScores[pId].estado} onChange={(e) => handleScoreChange(pId, 'estado', e.target.value)}>
+                                  <option value="programado">Pendiente</option>
+                                  <option value="en_curso">En Vivo</option>
+                                  <option value="finalizado">Finalizado</option>
                                 </select>
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <button className="btn btn-gold" style={{ padding: '6px 12px', fontSize: '12px', color: '#000', fontWeight: 800, minWidth: '70px' }} onClick={() => handleSaveResultado(pId)} disabled={saving}>
-                                  {saving ? '...' : '💾 GUARDAR'}
+                                <button 
+                                  className={`btn ${isSaved ? 'btn-ghost' : 'btn-gold'}`} 
+                                  style={{ padding: '6px 12px', fontSize: '11px', fontWeight: 800, minWidth: '85px' }} 
+                                  onClick={() => handleSaveResultado(pId)} 
+                                  disabled={saving}
+                                >
+                                  {saving ? '...' : isSaved ? '✓ EDITAR' : '💾 GUARDAR'}
                                 </button>
                               </td>
                             </tr>
@@ -400,19 +430,26 @@ export default function Admin() {
                       <thead>
                         <tr style={{ borderBottom: '1px solid var(--glass-border)' }}>
                           <th style={{ padding: 'var(--space-3)' }}>Usuario</th>
-                          <th style={{ padding: 'var(--space-3)' }}>Email</th>
                           <th style={{ padding: 'var(--space-3)' }}>Puntos</th>
-                          <th style={{ padding: 'var(--space-3)' }}>Rol</th>
+                          <th style={{ padding: 'var(--space-3)' }}>Progreso</th>
                         </tr>
                       </thead>
                       <tbody>
                         {usuarios.map(u => (
                           <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                            <td style={{ padding: 'var(--space-3)', fontWeight: 600 }}>{u.username}</td>
-                            <td style={{ padding: 'var(--space-3)' }}>{u.email}</td>
-                            <td style={{ padding: 'var(--space-3)' }}>{u.puntos_totales}</td>
                             <td style={{ padding: 'var(--space-3)' }}>
-                              {u.is_admin ? <span className="badge badge-done">Admin</span> : <span className="badge badge-open">Jugador</span>}
+                              <div style={{ fontWeight: 600 }}>@{u.username}</div>
+                            </td>
+                            <td style={{ padding: 'var(--space-3)', fontWeight: 800, color: 'var(--color-accent-gold)' }}>
+                              {u.puntos_totales || 0} pts
+                            </td>
+                            <td style={{ padding: 'var(--space-3)' }}>
+                              <div style={{ fontSize: '11px' }}>
+                                <span style={{ color: (u.pronosticos_count || 0) >= 72 ? '#2ecc71' : 'var(--color-warning)', fontWeight: 700 }}>
+                                  {u.pronosticos_count || 0} / 72
+                                </span>
+                                {(u.pronosticos_count || 0) < 72 && <div style={{ fontSize: '9px', color: 'var(--color-danger)' }}>Incompleta</div>}
+                              </div>
                             </td>
                           </tr>
                         ))}

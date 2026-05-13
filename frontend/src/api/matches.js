@@ -63,5 +63,6 @@ export const adminAPI = {
   desactivarFase: (slug) => api.post(`/admin/fases/${slug}/desactivar/`),
   cargarResultado: (id, goles_local, goles_visitante, estado = 'finalizado') => 
     api.patch(`/admin/partidos/${id}/resultado/`, { goles_local, goles_visitante, estado }),
+  recalcularPuntos: () => api.post('/admin/partidos/recalcular-puntos/'),
 };
 
