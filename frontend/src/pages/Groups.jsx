@@ -80,7 +80,7 @@ export default function Groups() {
             <span className="section-label">⚽ Fase de Grupos</span>
             <h1 className="section-title">Los 12 Grupos</h1>
             <p className="section-subtitle">
-              72 partidos. 48 selecciones. Predice cada resultado antes del kickoff.
+              104 partidos en total. 48 selecciones. Predice cada resultado desde grupos hasta la gran final.
             </p>
           </motion.div>
 
