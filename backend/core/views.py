@@ -85,7 +85,13 @@ class PartidoViewSet(viewsets.ReadOnlyModelViewSet):
     """GET /api/partidos/ — Todos los partidos del torneo."""
     queryset = Partido.objects.select_related(
         'equipo_local', 'equipo_visitante', 'fase', 'grupo'
-    ).all()
+    ).only(
+        'id', 'fecha_hora', 'sede', 'ciudad', 'estado', 'jornada', 'resultado_cargado',
+        'goles_local', 'goles_visitante', 'fase__slug', 'fase__nombre',
+        'equipo_local__nombre', 'equipo_local__nombre_corto', 'equipo_local__bandera_url',
+        'equipo_visitante__nombre', 'equipo_visitante__nombre_corto', 'equipo_visitante__bandera_url',
+        'grupo__letra'
+    ).order_by('fecha_hora')
     permission_classes = [AllowAny]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['fecha_hora', 'jornada']
@@ -333,18 +339,22 @@ class LeaderboardViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
     def list(self, request):
-        quinielas = Quiniela.objects.filter(estado='pagada').select_related('usuario').order_by(
-            '-puntos_totales', 'created_at'
-        )[:100]
+        quinielas = Quiniela.objects.filter(estado='pagada').select_related('usuario').only(
+            'id', 'nombre', 'puntos_totales', 'usuario__username', 'usuario__id'
+        ).order_by('-puntos_totales', 'created_at')[:100]
         
         data = []
         for i, q in enumerate(quinielas):
+            avatar_url = None
+            if hasattr(q.usuario, 'perfil'):
+                avatar_url = q.usuario.perfil.avatar_url
+
             data.append({
                 'posicion': i + 1,
                 'quiniela_id': q.id,
                 'nombre': q.nombre,
                 'username': q.usuario.username,
-                'avatar_url': getattr(q.usuario, 'perfilusuario', None).avatar_url if hasattr(q.usuario, 'perfilusuario') else None,
+                'avatar_url': avatar_url,
                 'puntos': q.puntos_totales
             })
         return Response(data)

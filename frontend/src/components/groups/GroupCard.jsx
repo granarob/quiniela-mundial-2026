@@ -2,11 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-export default function GroupCard({ grupo, index = 0, userProgress = {} }) {
+const GroupCard = React.memo(function GroupCard({ grupo, index = 0, userProgress = {} }) {
   const { letra, equipos_detalle = [], total_partidos = 6 } = grupo;
   const completados = userProgress[letra] || 0;
   const porcentaje = total_partidos > 0 ? Math.round((completados / total_partidos) * 100) : 0;
-
+  
   const getBadge = () => {
     if (completados === total_partidos && total_partidos > 0)
       return <span className="badge badge-done">✅ Completo</span>;
@@ -108,4 +108,6 @@ export default function GroupCard({ grupo, index = 0, userProgress = {} }) {
       </Link>
     </motion.div>
   );
-}
+});
+
+export default GroupCard;
