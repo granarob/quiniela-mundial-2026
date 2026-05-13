@@ -120,7 +120,8 @@ class AdminUserViewSet(generics.ListAPIView):
     serializer_class = PerfilSerializer
     
     def get_queryset(self):
-        # Protegemos la vista asegurando que solo superuser pueda acceder
-        if not (self.request.user.is_superuser or self.request.user.is_staff):
+        # Protegemos la vista asegurando que solo admins puedan acceder
+        user = self.request.user
+        if not (user.is_superuser or user.is_staff or getattr(user, 'is_admin', False)):
             return PerfilUsuario.objects.none()
-        return PerfilUsuario.objects.all().order_by('-created_at')
+        return PerfilUsuario.objects.all().order_by('id')

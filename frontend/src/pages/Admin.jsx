@@ -29,18 +29,21 @@ export default function Admin() {
   async function loadData() {
     setLoading(true);
     try {
+      // Usamos envoltorios individuales para que si uno falla, no bloquee todo
       const [fasesRes, partidosRes, usuariosRes, pagosRes] = await Promise.all([
-        adminAPI.fases(),
-        partidosAPI.list(),
-        adminAPI.usuarios(),
-        adminAPI.pagos()
+        adminAPI.fases().catch(err => ({ data: [] })),
+        partidosAPI.list().catch(err => ({ data: [] })),
+        adminAPI.usuarios().catch(err => ({ data: [] })),
+        adminAPI.pagos().catch(err => ({ data: [] }))
       ]);
+
       setFases(fasesRes.data);
-      setUsuarios(usuariosRes.data.results || usuariosRes.data);
-      setPagos(pagosRes.data);
       
-      const p = partidosRes.data.results || partidosRes.data;
+      const p = partidosRes.data.results || partidosRes.data || [];
       setPartidos(p);
+      
+      setUsuarios(usuariosRes.data.results || usuariosRes.data || []);
+      setPagos(pagosRes.data || []);
       
       const scores = {};
       p.forEach(partido => {
@@ -52,7 +55,8 @@ export default function Admin() {
       });
       setEditScores(scores);
     } catch (e) {
-      console.error(e);
+      console.error("Error cargando datos de admin:", e);
+      showMessage('Error parcial al cargar datos. Verifica tu conexión.', 'warning');
     } finally {
       setLoading(false);
     }

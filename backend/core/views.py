@@ -83,15 +83,10 @@ class FaseViewSet(viewsets.ReadOnlyModelViewSet):
 
 class PartidoViewSet(viewsets.ReadOnlyModelViewSet):
     """GET /api/partidos/ — Todos los partidos del torneo."""
-    queryset = Partido.objects.select_related(
-        'equipo_local', 'equipo_visitante', 'fase', 'grupo'
-    ).only(
-        'id', 'fecha_hora', 'sede', 'ciudad', 'estado', 'jornada', 'resultado_cargado',
-        'goles_local', 'goles_visitante', 'fase__slug', 'fase__nombre',
-        'equipo_local__nombre', 'equipo_local__nombre_corto', 'equipo_local__bandera_url',
-        'equipo_visitante__nombre', 'equipo_visitante__nombre_corto', 'equipo_visitante__bandera_url',
-        'grupo__letra'
-    ).order_by('fecha_hora')
+    def get_queryset(self):
+        return Partido.objects.all().select_related(
+            'equipo_local', 'equipo_visitante', 'fase', 'grupo'
+        ).order_by('fecha_hora')
     permission_classes = [AllowAny]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['fecha_hora', 'jornada']
