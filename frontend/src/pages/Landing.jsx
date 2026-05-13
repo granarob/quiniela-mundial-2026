@@ -39,7 +39,7 @@ export default function Landing() {
 
   const howItWorks = [
     { icon: '📝', step: '01', title: 'Regístrate', desc: 'Crea tu cuenta en segundos y accede a la plataforma.' },
-    { icon: '⚽', step: '02', title: 'Haz tus picks', desc: 'Predice los marcadores de los 144 partidos de grupos y más.' },
+    { icon: '⚽', step: '02', title: 'Haz tus picks', desc: 'Predice los marcadores de los 72 partidos de grupos y más.' },
     { icon: '🏆', step: '03', title: 'Gana puntos', desc: 'Acumula puntos con cada acierto y sube en el ranking.' },
   ];
 
