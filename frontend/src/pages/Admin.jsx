@@ -119,17 +119,18 @@ export default function Admin() {
     
     setSaving(true);
     try {
-      await adminAPI.cargarResultado(
+      const response = await adminAPI.cargarResultado(
         partidoId, 
         scores.goles_local, 
         scores.goles_visitante, 
         scores.estado
       );
-      showMessage('Resultado guardado y puntos recalculados exitosamente.');
+      showMessage(response.data.message || 'Resultado guardado y puntos recalculados exitosamente.');
       const partidosRes = await partidosAPI.list();
       setPartidos(partidosRes.data.results || partidosRes.data);
     } catch (e) {
-      showMessage('Error al guardar el resultado.', 'error');
+      const errorMsg = e.response?.data?.error || e.response?.data?.message || 'Error al guardar el resultado.';
+      showMessage(errorMsg, 'error');
     } finally {
       setSaving(false);
     }
@@ -319,12 +320,12 @@ export default function Admin() {
                             </td>
                             <td style={{ padding: 'var(--space-3)', display: 'flex', gap: 'var(--space-2)' }}>
                               {!f.activa && (
-                                <button className="btn btn-outline" style={{ padding: '4px 12px', fontSize: 'var(--text-xs)' }} onClick={() => handleFaseAction(f.slug, 'activar')}>🔓 Activar</button>
+                                <button className="btn btn-gold" style={{ padding: '4px 12px', fontSize: 'var(--text-xs)', color: '#000', fontWeight: 700 }} onClick={() => handleFaseAction(f.slug, 'activar')}>🔓 Activar</button>
                               )}
                               {f.activa && !f.bloqueada && (
-                                <button className="btn btn-outline" style={{ padding: '4px 12px', fontSize: 'var(--text-xs)', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }} onClick={() => handleFaseAction(f.slug, 'bloquear')}>🔒 Bloquear</button>
+                                <button className="btn" style={{ padding: '4px 12px', fontSize: 'var(--text-xs)', background: 'var(--color-danger)', color: '#fff', border: 'none' }} onClick={() => handleFaseAction(f.slug, 'bloquear')}>🔒 Bloquear</button>
                               )}
-                              <button className="btn btn-outline" style={{ padding: '4px 12px', fontSize: 'var(--text-xs)' }} onClick={() => handleFaseAction(f.slug, 'desactivar')}>Apagar</button>
+                              <button className="btn btn-ghost" style={{ padding: '4px 12px', fontSize: 'var(--text-xs)', border: '1px solid var(--text-muted)' }} onClick={() => handleFaseAction(f.slug, 'desactivar')}>Apagar</button>
                             </td>
                           </tr>
                         ))}
@@ -373,7 +374,9 @@ export default function Admin() {
                                 </select>
                               </td>
                               <td style={{ padding: 'var(--space-3)' }}>
-                                <button className="btn btn-gold" style={{ padding: '4px 8px', fontSize: '10px' }} onClick={() => handleSaveResultado(pId)} disabled={saving}>💾 OK</button>
+                                <button className="btn btn-gold" style={{ padding: '6px 12px', fontSize: '12px', color: '#000', fontWeight: 800, minWidth: '70px' }} onClick={() => handleSaveResultado(pId)} disabled={saving}>
+                                  {saving ? '...' : '💾 GUARDAR'}
+                                </button>
                               </td>
                             </tr>
                           );

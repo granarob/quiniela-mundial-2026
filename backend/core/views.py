@@ -466,15 +466,24 @@ class AdminPartidoViewSet(viewsets.ViewSet):
         goles_visitante = request.data.get('goles_visitante')
         estado = request.data.get('estado', 'finalizado')
 
-        if goles_local is not None and goles_visitante is not None:
-            partido.goles_local = int(goles_local)
-            partido.goles_visitante = int(goles_visitante)
-            partido.estado = estado
-            partido.resultado_cargado = True
-            partido.save()  # Esto dispara el signal calcular_puntos_al_guardar_resultado
-            return Response({'message': 'Resultado guardado y puntos recalculados.'})
-        
-        return Response({'error': 'Faltan datos de goles.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            if goles_local is not None and goles_visitante is not None:
+                partido.goles_local = int(goles_local)
+                partido.goles_visitante = int(goles_visitante)
+                partido.estado = estado
+                partido.resultado_cargado = True
+                
+                from django.db import transaction
+                with transaction.atomic():
+                    partido.save()  # Dispara signal calcular_puntos
+                
+                return Response({'message': 'Resultado guardado y puntos recalculados.'})
+            else:
+                return Response({'error': 'Faltan los goles.'}, status=status.HTTP_400_BAD_REQUEST)
+        except (ValueError, TypeError):
+            return Response({'error': 'Los goles deben ser números válidos.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AdminPagoViewSet(viewsets.ViewSet):
