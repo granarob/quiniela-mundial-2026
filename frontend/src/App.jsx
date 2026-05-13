@@ -24,6 +24,7 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Rules = lazy(() => import('./pages/Rules'));
 const UserDetail = lazy(() => import('./pages/UserDetail'));
+const MasterBoard = lazy(() => import('./pages/MasterBoard'));
 
 function LoadingFallback() {
   return (
@@ -68,6 +69,9 @@ export default function App() {
               } />
               <Route path="/jugador/:id" element={
                 <ProtectedRoute><UserDetail /></ProtectedRoute>
+              } />
+              <Route path="/tablero-general" element={
+                <ProtectedRoute><MasterBoard /></ProtectedRoute>
               } />
               {/* 404 */}
               <Route path="*" element={

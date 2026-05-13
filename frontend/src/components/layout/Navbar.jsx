@@ -27,6 +27,7 @@ export default function Navbar() {
     { to: '/grupos', label: '⚽ Grupos' },
     { to: '/eliminatorias', label: '🏟️ Eliminatorias' },
     { to: '/leaderboard', label: '🏆 Ranking' },
+    { to: '/tablero-general', label: '📊 Tablero' },
     { to: '/reglas', label: '📜 Reglas' },
     ...(user ? [
       { to: '/predicciones', label: '🌟 Predicciones' },

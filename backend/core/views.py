@@ -229,6 +229,48 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
         except PronosticoPartido.DoesNotExist:
             return super().create(request, *args, **kwargs)
 
+    @action(detail=False, methods=['get'], url_path='matrix')
+    def matrix(self, request):
+        """GET /api/pronosticos/partidos/matrix/?jornada=1 — Matriz de todos los usuarios."""
+        jornada = request.query_params.get('jornada')
+        fase_slug = request.query_params.get('fase', 'grupos')
+        
+        # 1. Obtener partidos de esa jornada/fase
+        partidos = Partido.objects.filter(fase__slug=fase_slug)
+        if jornada:
+            partidos = partidos.filter(jornada=jornada)
+        partidos = partidos.order_by('fecha_hora')
+        
+        # 2. Obtener quinielas pagadas
+        quinielas = Quiniela.objects.filter(estado='pagada').select_related('usuario')
+        
+        # 3. Obtener todos los pronósticos para esos partidos
+        pronos = PronosticoPartido.objects.filter(
+            partido__in=partidos,
+            quiniela__in=quinielas
+        ).select_related('quiniela', 'partido')
+        
+        # 4. Estructurar la data: { quiniela_id: { partido_id: { local, visita, puntos } } }
+        matrix_data = {}
+        for p in pronos:
+            q_id = p.quiniela_id
+            if q_id not in matrix_data:
+                matrix_data[q_id] = {}
+            matrix_data[q_id][p.partido_id] = {
+                'l': p.goles_local_pred,
+                'v': p.goles_visitante_pred,
+                'pts': p.puntos_ganados
+            }
+            
+        return Response({
+            'partidos': PartidoListSerializer(partidos, many=True).data,
+            'usuarios': [
+                {'id': q.id, 'nombre': q.nombre, 'username': q.usuario.username} 
+                for q in quinielas
+            ],
+            'matrix': matrix_data
+        })
+
     @action(detail=False, methods=['post'], url_path='bulk')
     def bulk_create(self, request):
         """POST /api/pronosticos/partidos/bulk/ — Guardar múltiples en una quiniela."""
@@ -250,12 +292,11 @@ class PronosticoPartidoViewSet(viewsets.ModelViewSet):
                         quiniela_id=quiniela_id,
                         partido_id=partido_id,
                         defaults={
-                            'goles_local_pred': item['goles_local_pred'],
-                            'goles_visitante_pred': item['goles_visitante_pred'],
+                            'goles_local_pred': item.get('goles_local_pred', 0),
+                            'goles_visitante_pred': item.get('goles_visitante_pred', 0),
                         }
                     )
                     if not created:
-                        # Verificar que la fase sigue abierta
                         if not obj.partido.fase.esta_abierta():
                             continue
                         obj.goles_local_pred = item['goles_local_pred']
