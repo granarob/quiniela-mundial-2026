@@ -382,10 +382,11 @@ class LeaderboardViewSet(viewsets.ViewSet):
     """GET /api/leaderboard/ — Ranking global de quinielas pagadas."""
     permission_classes = [AllowAny]
 
+    def get_queryset(self):
+        return Quiniela.objects.filter(estado='pagada').select_related('usuario').order_by('-puntos_totales', 'nombre')
+
     def list(self, request):
-        quinielas = Quiniela.objects.filter(estado='pagada').select_related('usuario').only(
-            'id', 'nombre', 'puntos_totales', 'usuario__username', 'usuario__id'
-        ).order_by('-puntos_totales', 'created_at')[:100]
+        quinielas = self.get_queryset()[:100]
         
         data = []
         for i, q in enumerate(quinielas):
