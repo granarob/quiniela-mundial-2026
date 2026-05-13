@@ -32,7 +32,7 @@ export default function Admin() {
       // Usamos envoltorios individuales para que si uno falla, no bloquee todo
       const [fasesRes, partidosRes, usuariosRes, pagosRes] = await Promise.all([
         adminAPI.fases().catch(err => ({ data: [] })),
-        partidosAPI.list().catch(err => ({ data: [] })),
+        partidosAPI.list({ limit: 100 }).catch(err => ({ data: [] })),
         adminAPI.usuarios().catch(err => ({ data: [] })),
         adminAPI.pagos().catch(err => ({ data: [] }))
       ]);
@@ -130,7 +130,7 @@ export default function Admin() {
         scores.estado
       );
       showMessage(response.data.message || 'Resultado guardado y puntos recalculados exitosamente.');
-      const partidosRes = await partidosAPI.list();
+      const partidosRes = await partidosAPI.list({ limit: 100 });
       setPartidos(partidosRes.data.results || partidosRes.data);
     } catch (e) {
       const errorMsg = e.response?.data?.error || e.response?.data?.message || 'Error al guardar el resultado.';
